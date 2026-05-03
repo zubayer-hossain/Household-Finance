@@ -1,0 +1,167 @@
+---
+description: UI/UX guidelines — tokens, layout, components, accessibility (household FO app)
+globs: src/**/*.tsx,src/**/*.css
+alwaysApply: false
+---
+
+# UI / UX design guidelines
+
+Use this checklist for **new screens, features, or shared components**. Prefer extending existing primitives in `src/components/ui/` over one-off styles.
+
+---
+
+## Visual language
+
+- **Tone**: Calm, trustworthy money product — **slate neutrals + single primary blue** (`primary`, `foreground`, `muted-foreground`). No decorative rainbow accents or generic “AI slop” purple gradients.
+- **Depth**: Light elevation via `shadow-soft` (controls) and `shadow-card` (cards, raised panels). Do not invent new shadow stacks unless migrating the theme in `globals.css` `@theme`.
+- **Corners**: Prefer theme radii (`rounded-xl`, `rounded-2xl`, `rounded-3xl`) consistently with sibling elements. Buttons default `rounded-xl`; large CTAs may use `rounded-2xl` / `size="lg"`.
+- **Borders**: `border-border` / `border-input` at subtle opacity (`/85`, `/90`, `/95`) when matching existing shells.
+
+---
+
+## Tokens and CSS
+
+- **Semantic colors only** in JSX: `background`, `foreground`, `card`, `muted`, `muted-foreground`, `primary`, `destructive`, `border`, `ring`. Avoid raw `slate-*` / `gray-*` unless patching the theme.
+- **Page canvases**: Auth/onboarding flows use `@utility surface-market` (`globals.css`). New “full-page marketing-style” shells should reuse it instead of copying gradient classes.
+- **Links** in prose: `link-inline`. **Section labels**: `eyebrow` utility.
+- **Do not hardcode fonts** beyond `font-sans` — family comes from Next font + `@theme`.
+
+---
+
+## Typography
+
+- **Body**: Slight negative tracking matches `body` in `globals.css` (`letter-spacing`). Keep labels legible (`text-sm`–`text-[0.9375rem]` for supporting copy).
+- **Headings**: `h1–h3` use `text-balance-safe`. Titles inside cards/dialogs often `font-semibold` + tight `tracking-tight` / `-0.03em` where already used in sibling components.
+- **Hierarchy**: One clear page title; supporting text `text-muted-foreground` with relaxed `leading-relaxed`.
+
+---
+
+## Layout and density
+
+- **Mobile-first**: Touch targets ≥ ~44px height for primary actions (`Button` default `min-h-[2.875rem]`). Avoid cramming multiple primary buttons in one row on small screens.
+- **Spacing**: Prefer `gap-4` / `gap-5` in forms; `p-6` / `px-6` for card interiors to match `Card` / `DialogContent`.
+- **Max width**: Constrain forms and modals (`max-w-md`, `w-[min(calc(100vw-2rem),22rem)]` pattern) for readability.
+
+---
+
+## Components
+
+- **Buttons**: Use `Button` + `buttonVariants` from `src/components/ui/button.tsx`. Keep `cursor-pointer` on real buttons (see `globals.css` base layer); do not strip `focus-visible:ring-*` styles.
+- **Cards**: Use `Card` / `CardHeader` / `CardContent` for grouped content; match `rounded-3xl border … shadow-card`.
+- **Dialogs**: Use `Dialog` primitives; default `showClose` for discoverable escape. Pair `DialogTitle` with `DialogDescription` and `aria-describedby` where needed.
+- **Forms**: `Label` + `Input` + `FormCallout` for errors/success. Use `role="alert"` patterns already set on destructive callouts.
+- **Icons**: `lucide-react`; size ~`1.05rem`–`1.1rem` inline with text in buttons (see existing `size-[1.0625rem]` pattern).
+
+---
+
+## Interaction and motion
+
+- **Feedback**: `active:scale-[0.98]` on primary buttons is part of the system; keep transitions short (`transition-[color,transform,box-shadow,opacity]`).
+- **Focus**: Always visible `focus-visible:ring-2 ring-ring ring-offset-2 ring-offset-background` on custom interactive elements (or use shared primitives).
+- **Loading**: Prefer explicit text (“Saving…”, “Working…”) + `disabled` on triggers; use `Loader2` or skeletons consistent with nearby screens.
+
+---
+
+## Content and UX copy
+
+- **Household-first** language (shared money, household, members) — align with product rules.
+- **Invites / auth**: Magic-link flows are passwordless until the user sets a password; do not imply they should “log in with password” on first invite.
+- **Errors**: Human, specific, actionable; no raw API dumps in UI.
+
+---
+
+## Accessibility
+
+- Meaningful **button/link text** (no “click here” alone).
+- **Dialog**: trap focus (Radix handles); don’t remove `DialogTitle`.
+- **Contrast**: Primary on white and muted text on background must remain readable; test destructive actions for visibility.
+
+---
+
+## Anti-patterns
+
+- New hex/HSL colors in arbitrary Tailwind instead of theme tokens.
+- Raw `<button className="bg-blue-500">` bypassing `Button`.
+- Full-width dense tables on mobile without horizontal affordance or card fallback.
+- Stripping `cursor-pointer` / focus styles for “cleaner” UI.
+
+---
+
+## When adding a new module
+
+1. Reuse `src/components/ui/*` and existing shell (`AppShell`, headers) where possible.
+2. If you need a new primitive, add it under `components/ui` once, then consume from features.
+3. Document any new **global** token or utility in `globals.css` `@theme` or `@utility`, not scattered in JSX.
+
+
+## Financial UI hierarchy
+
+Money is the primary visual signal in financial surfaces.
+
+Prioritize visual hierarchy in this order:
+1. amount
+2. state
+3. label
+4. metadata
+
+Rules:
+- amounts must be the most visually dominant element in financial cards
+- status / health should be immediately scannable
+- labels support the amount, not compete with it
+- metadata must stay visually quiet
+
+Do not give equal visual weight to:
+- labels
+- descriptions
+- timestamps
+- monetary values
+
+Money must always scan first.
+
+## Empty states
+
+Empty states must feel intentional and product-grade.
+
+Rules:
+- always explain what this area is for
+- explain what happens next
+- provide one clear primary action
+- avoid dead-end blank states
+- avoid generic “No data found”
+
+Empty states should feel helpful, not unfinished.
+
+
+## Destructive actions
+
+Destructive actions must feel deliberate and safe.
+
+Rules:
+- destructive actions must never be primary visual CTA
+- require clear confirmation for irreversible actions
+- explain consequence before confirm
+- destructive actions must be visually separated from safe actions
+- never place destructive and primary actions side-by-side with equal emphasis
+- high-risk destructive actions must require typed confirmation (e.g. type "delete" or the entity name)
+- use typed confirmation for irreversible actions such as:
+  - deleting a household
+  - closing a month
+  - deleting financial records
+- low-risk destructive actions may use standard confirm dialogs
+- confirmation friction should scale with risk
+
+## Data density
+
+Financial screens may contain dense information, but must remain calm.
+
+Rules:
+- group information into digestible visual chunks
+- avoid long uninterrupted data walls
+- prefer cards and sections over dense stacked lists
+- progressive disclosure over showing everything at once
+- one primary decision per surface
+
+Density is acceptable.
+Cognitive overload is not.
+
+
