@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { Home, LayoutGrid } from "lucide-react";
+import { Home, PieChart } from "lucide-react";
 
 import { appShellContentClassName } from "@/components/shell/app-shell-content";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,7 @@ const navCls =
 export function MobileBottomNav() {
   const pathname = usePathname();
   const homeActive = pathname === "/app";
+  const budgetsActive = pathname.startsWith("/app/budgets");
 
   return (
     <nav
@@ -36,16 +37,22 @@ export function MobileBottomNav() {
             <Home className="size-[1.25rem]" strokeWidth={homeActive ? 2.25 : 2} aria-hidden />
             <span className="leading-none">Home</span>
           </Link>
-          <span
+          <Link
+            href="/app/budgets"
+            prefetch
+            aria-current={budgetsActive ? "page" : undefined}
             className={cn(
               navCls,
-              "cursor-default text-muted-foreground/85 opacity-[0.88]"
+              budgetsActive ? "bg-primary/11 text-primary" : "text-muted-foreground"
             )}
-            aria-hidden
           >
-            <LayoutGrid className="size-[1.25rem] opacity-60" aria-hidden />
-            <span className="leading-none">Soon</span>
-          </span>
+            <PieChart
+              className="size-[1.25rem]"
+              strokeWidth={budgetsActive ? 2.25 : 2}
+              aria-hidden
+            />
+            <span className="leading-none">Budgets</span>
+          </Link>
         </div>
       </div>
     </nav>

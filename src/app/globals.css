@@ -62,6 +62,12 @@
 
   --color-destructive: hsl(0 72% 48%);
 
+  /* Solid success / “active” pills — budget status, high-contrast badges */
+
+  --color-success-solid: #047857;
+
+  --color-success-solid-foreground: #ffffff;
+
   --color-ring: hsl(221 71% 45%);
 
 

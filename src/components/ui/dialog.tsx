@@ -45,7 +45,7 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-1/2 top-1/2 z-[150] grid max-h-[calc(100dvh-2rem)] w-[min(calc(100vw-2rem),22rem)] -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-2xl border border-border bg-card p-6 pr-12 shadow-card duration-150",
+        "fixed left-1/2 top-1/2 z-[150] grid max-h-[calc(100dvh-2rem)] w-[min(calc(100vw-2rem),22rem)] -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-2xl border border-border bg-card p-6 shadow-card duration-150",
         "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         className
       )}
@@ -68,6 +68,21 @@ const DialogContent = React.forwardRef<
   </DialogPortal>
 ));
 DialogContent.displayName = DialogPrimitive.Content.displayName;
+
+function DialogHeader({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      className={cn(
+        "flex flex-col gap-1.5 text-left pr-11 sm:pr-12",
+        className
+      )}
+      {...props}
+    />
+  );
+}
 
 const DialogTitle = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Title>,
@@ -100,6 +115,7 @@ export {
   DialogTrigger,
   DialogClose,
   DialogContent,
+  DialogHeader,
   DialogTitle,
   DialogDescription,
 };
