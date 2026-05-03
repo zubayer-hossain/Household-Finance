@@ -43,12 +43,12 @@ export default function HouseholdPage() {
     return (
       <div className="flex flex-col gap-8 pb-12">
         <header className="space-y-1">
-          <p className="eyebrow">Workspaces</p>
+          <p className="eyebrow">Your households</p>
           <h1 className="text-[1.625rem] font-semibold leading-tight tracking-[-0.03em] sm:text-[1.75rem]">
             Household management
           </h1>
           <p className="max-w-xl text-[0.9375rem] leading-relaxed text-muted-foreground">
-            Houses are separate workspaces (currency, people, budgets). Start by creating one.
+            Each household keeps its own currency, people, and (soon) budgets. Start by creating one.
           </p>
         </header>
         <Card className="mx-auto w-full max-w-xl border-border/85 shadow-soft">
@@ -95,14 +95,14 @@ export default function HouseholdPage() {
         <div className="space-y-1">
           <p className="eyebrow flex items-center gap-2">
             <LayoutGrid className="size-[0.9rem]" aria-hidden />
-            Workspaces
+            Your households
           </p>
           <h1 className="text-[1.625rem] font-semibold leading-tight tracking-[-0.03em] sm:text-[1.75rem]">
             Household management
           </h1>
           <p className="max-w-2xl text-[0.9375rem] leading-relaxed text-muted-foreground">
-            Every household you&apos;re part of appears here — open one as your active workspace,
-            rename ones you administer, invite people, or delete (when safe).
+            Every household you belong to appears here — open one to make it active in the app,
+            rename the ones you administer, invite people, or delete (when safe).
           </p>
         </div>
         <CreateHouseholdDialog

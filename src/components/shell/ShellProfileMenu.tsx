@@ -116,12 +116,12 @@ export function ShellProfileMenu({
                 </p>
                 {memberships.length === 1 ? (
                   <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
-                    Your only workspace — switching isn&apos;t needed.
+                    You only belong to one household right now — switching isn&apos;t needed.
                   </p>
                 ) : null}
                 {memberships.length > 1 ? (
                   <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">
-                    Choose another workspace below.
+                    Choose another household below.
                   </p>
                 ) : null}
               </div>

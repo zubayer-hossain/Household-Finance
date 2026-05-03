@@ -4,15 +4,11 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
+import { ConfirmDestructivePhrasePanel } from "@/components/ui/confirm-destructive-dialog";
 import {
   Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useHouseholdDeletionAssessment } from "@/features/household/hooks/use-household-deletion-assessment";
 import { householdService } from "@/features/household/services/household.service";
@@ -33,7 +29,6 @@ export function DeleteHouseholdSection({
 }) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [typed, setTyped] = useState("");
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
@@ -47,11 +42,8 @@ export function DeleteHouseholdSection({
 
   if (!isOwner) return null;
 
-  const typedOk = typed.trim().toLowerCase() === "delete";
-
   async function executeDelete() {
     setActionError(null);
-    if (!typedOk) return;
     setBusy(true);
     try {
       await householdService.deleteHousehold(householdId);
@@ -81,14 +73,14 @@ export function DeleteHouseholdSection({
           </h2>
           <p className="mt-2 max-w-xl text-[0.9375rem] leading-relaxed text-muted-foreground">
             This removes the household permanently for everyone. You can delete only when
-            it’s safe — we verify members and recorded activity first.
+            it&apos;s safe — we verify members and recorded activity first.
           </p>
         </>
       ) : (
         <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-destructive">
-              Delete workspace
+              Delete household
             </p>
             <p className="mt-1 text-[12px] leading-snug text-muted-foreground">
               Permanent. Only when no one else and no financial records remain.
@@ -159,10 +151,7 @@ export function DeleteHouseholdSection({
           open={open}
           onOpenChange={(o) => {
             setOpen(o);
-            if (!o) {
-              setTyped("");
-              setActionError(null);
-            }
+            if (!o) setActionError(null);
           }}
         >
           <DialogTrigger asChild>
@@ -180,57 +169,26 @@ export function DeleteHouseholdSection({
               {compact ? "Delete household" : "Delete this household"}
             </Button>
           </DialogTrigger>
-          <DialogContent
-            aria-describedby={undefined}
-            className="border-destructive/30"
-          >
-            <DialogTitle className="text-destructive pr-6">
-              Delete &ldquo;{householdName}&rdquo;?
-            </DialogTitle>
-            <DialogDescription>
-              This cannot be undone and removes <span className="font-semibold text-foreground">&ldquo;
-              {householdName}&rdquo;</span> for everyone. Type the word{" "}
-              <span className="font-mono font-semibold text-foreground">delete</span> below to confirm.
-            </DialogDescription>
-
-            <div className="mt-4 space-y-2.5">
-              <Label htmlFor="hh-delete-confirm">Type delete to confirm</Label>
-              <Input
-                id="hh-delete-confirm"
-                value={typed}
-                onChange={(e) => setTyped(e.target.value)}
-                placeholder="delete"
-                autoComplete="off"
-                className="border-destructive/25"
-              />
-            </div>
-
-            {actionError ? (
-              <p className="mt-3 rounded-xl border border-destructive/35 bg-destructive/[0.08] px-3 py-2 text-sm whitespace-pre-line text-destructive">
-                {actionError}
-              </p>
-            ) : null}
-
-            <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-              <Button
-                type="button"
-                variant="ghost"
-                className="rounded-xl"
-                onClick={() => setOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                variant="destructive"
-                className="rounded-xl"
-                disabled={!typedOk || busy}
-                onClick={() => void executeDelete()}
-              >
-                {busy ? "Deleting…" : "Permanently delete"}
-              </Button>
-            </div>
-          </DialogContent>
+          <ConfirmDestructivePhrasePanel
+            dialogActive={open}
+            title={<>Delete &ldquo;{householdName}&rdquo;?</>}
+            description={
+              <>
+                This cannot be undone and removes{" "}
+                <span className="font-semibold text-foreground">&ldquo;{householdName}&rdquo;</span> for
+                everyone. Type the confirmation word below.
+              </>
+            }
+            confirmationPhrase="delete"
+            phraseInputId="hh-delete-confirm"
+            confirmLabel="Permanently delete"
+            pendingConfirmLabel="Deleting…"
+            pending={busy}
+            onConfirm={executeDelete}
+            onCancel={() => setOpen(false)}
+            errorMessage={actionError}
+            contentClassName="border-destructive/30"
+          />
         </Dialog>
       ) : null}
     </section>

@@ -44,7 +44,7 @@ export function HouseholdWorkspaceCard({
                 {household.name}
               </h2>
               {isActive ? (
-                <Badge variant="primary">Active workspace</Badge>
+                <Badge variant="primary">Active household</Badge>
               ) : null}
             </div>
             <p className="text-[13px] capitalize leading-snug text-muted-foreground">
@@ -81,7 +81,7 @@ export function HouseholdWorkspaceCard({
               setActiveMembership(membership.householdId, membership.role)
             }
           >
-            {isActive ? "Opened in app" : "Open as workspace"}
+            {isActive ? "This household is active" : "Open this household"}
           </Button>
         </div>
       </div>

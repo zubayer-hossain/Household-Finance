@@ -37,7 +37,7 @@ export function LoginForm() {
           Sign in
         </h1>
         <p className="text-[0.9375rem] leading-relaxed text-muted-foreground">
-          Welcome back to your household workspace.
+          Welcome back — pick up where you left off with your households.
         </p>
       </CardHeader>
       <form onSubmit={form.handleSubmit(onSubmit)}>

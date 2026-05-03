@@ -15,7 +15,7 @@ export function DashboardHouseholdContext() {
   return (
     <p className="text-[13px] leading-relaxed text-muted-foreground">
       <span className="font-medium text-foreground/80">{name}</span>
-      {" · "}your workspace
+      {" · "}active household
     </p>
   );
 }

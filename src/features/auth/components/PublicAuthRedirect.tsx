@@ -84,7 +84,7 @@ export function PublicAuthRedirect({
 
         <p className="text-sm font-medium text-muted-foreground">
 
-          Opening your workspace…
+          Signing you in…
 
         </p>
 

@@ -16,7 +16,7 @@ function LoginInviteHintInner() {
     <FormCallout tone="neutral" className="mb-4 text-left leading-relaxed">
       <span className="font-medium text-foreground">Were you invited?</span> Your invitation is a{" "}
       <strong className="font-semibold text-foreground">magic link</strong>, not a password yet. Tap
-      the button in that email — you should arrive already signed into the workspace. If you see
+      the button in that email — you should arrive already signed into your household. If you see
       this screen instead, go back and use the invite link again, or ask the admin to send a fresh
       invite.
     </FormCallout>

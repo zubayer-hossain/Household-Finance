@@ -18,10 +18,12 @@ export default function AppHomePage() {
           Dashboard
         </h1>
         <p className="max-w-[28rem] text-[0.9375rem] leading-relaxed text-muted-foreground">
-          Budget and spending modules arrive next.
+          This dashboard will surface household spending and budget health once Budget ships. Until
+          then, jump into households and members from the shortcuts below — every change stays scoped to
+          the household you actively opened.
         </p>
       </header>
-      <nav className="flex flex-col gap-3" aria-label="Workspace">
+      <nav className="flex flex-col gap-3" aria-label="Household shortcuts">
         <Link href="/app/household" className={cn(tileCls, "hover:border-primary/25 hover:shadow-card")}>
           <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <LayoutGrid className="size-[1.375rem]" strokeWidth={2.25} aria-hidden />
@@ -31,7 +33,7 @@ export default function AppHomePage() {
               Households
             </span>
             <span className="mt-0.5 block text-xs text-muted-foreground">
-              List, create, rename, open workspace
+              List households, invite people, rename, or switch your active household
             </span>
           </span>
           <ChevronRight

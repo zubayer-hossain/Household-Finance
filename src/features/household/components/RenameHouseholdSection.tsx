@@ -84,7 +84,7 @@ export function RenameHouseholdSection({
           >
             <DialogTitle className="pr-6">Rename household</DialogTitle>
             <DialogDescription>
-              Visible to everyone in this workspace. Currency and timezone stay the same.
+              Visible to everyone in this household. Currency and timezone stay the same.
             </DialogDescription>
             <form
               className="mt-4 flex flex-col gap-4"

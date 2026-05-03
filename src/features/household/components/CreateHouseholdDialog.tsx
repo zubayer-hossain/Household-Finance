@@ -42,7 +42,7 @@ export function CreateHouseholdDialog({
       >
         <DialogTitle className="pr-6">Create household</DialogTitle>
         <DialogDescription>
-          You become the owner. Set up another workspace for a different home,
+          You become the owner. Create another household when you need a separate home,
           project, or shared budget.
         </DialogDescription>
         <div className="mt-2">

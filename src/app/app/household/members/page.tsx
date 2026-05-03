@@ -93,7 +93,7 @@ function MembersRouteBody() {
           </Button>
         </header>
         <p className="max-w-xl rounded-2xl border border-destructive/30 bg-destructive/[0.06] px-5 py-4 text-[0.9375rem] leading-relaxed text-muted-foreground">
-          This household wasn&apos;t found in your workspaces. Open{" "}
+          This household isn&apos;t in your memberships. Go to{" "}
           <Link
             href="/app/household"
             className="font-semibold text-foreground underline-offset-4 hover:underline"
@@ -133,8 +133,8 @@ function MembersRouteBody() {
           >
             household management
           </Link>{" "}
-          and select <span className="font-medium text-foreground">Open as workspace</span>{" "}
-          on a card, or open members from there.
+          and tap <span className="font-medium text-foreground">Open this household</span> on a card
+          so it&apos;s active, then return to members from there.
         </div>
       </div>
     );

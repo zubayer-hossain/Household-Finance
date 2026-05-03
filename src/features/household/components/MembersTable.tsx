@@ -5,6 +5,9 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import {
+  ConfirmDestructiveDialog,
+} from "@/components/ui/confirm-destructive-dialog";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -68,13 +71,8 @@ export function MembersTable({
   const [busyRow, setBusyRow] = useState<string | null>(null);
   const [errMsg, setErrMsg] = useState<string | null>(null);
   const [removeTarget, setRemoveTarget] = useState<MemberRow | null>(null);
-  const [removeConfirmInput, setRemoveConfirmInput] = useState("");
   const [nameInviteTarget, setNameInviteTarget] = useState<MemberRow | null>(null);
   const [inviteNameDraft, setInviteNameDraft] = useState("");
-
-  useEffect(() => {
-    if (!removeTarget) setRemoveConfirmInput("");
-  }, [removeTarget]);
 
   useEffect(() => {
     if (nameInviteTarget) {
@@ -163,10 +161,6 @@ export function MembersTable({
   const cancellingInvite = removeTarget?.status === "invited";
   const removalRequiredPhrase =
     removeTarget != null ? (cancellingInvite ? "cancel" : "remove") : "";
-  const removalTypedOk =
-    removalRequiredPhrase !== "" &&
-    removeConfirmInput.trim().toLowerCase() === removalRequiredPhrase;
-
   if (!roster.length) {
     return (
       <div className="rounded-[1.375rem] border border-dashed border-border/90 bg-muted/35 px-6 py-10 text-center text-[0.9375rem] leading-relaxed text-muted-foreground">
@@ -353,88 +347,43 @@ export function MembersTable({
         ))}
       </ul>
 
-      <Dialog
+      <ConfirmDestructiveDialog
         open={removeTarget != null}
         onOpenChange={(o) => {
           if (!o) setRemoveTarget(null);
         }}
-      >
-        <DialogContent
-          aria-describedby={undefined}
-          className="gap-1 border-destructive/25 w-[min(calc(100vw-2rem),26rem)]"
-        >
-          <DialogTitle className="pr-6 text-destructive">
-            {cancellingInvite ? "Cancel invitation?" : "Remove household member?"}
-          </DialogTitle>
-          <DialogDescription className="mt-3">
-            {cancellingInvite ? (
-              <>
-                This revokes their invite link. They will no longer be able to join using
-                that invitation — you can send a new invite later.
-              </>
-            ) : (
-              <>
-                This person loses access immediately. You can invite them again only by
-                sending a new invitation.
-              </>
-            )}
-          </DialogDescription>
-          <div className="mt-6 space-y-3">
-            <Label
-              htmlFor="member-remove-confirm"
-              className="text-[0.8125rem] font-semibold tracking-tight text-foreground"
-            >
-              Type{" "}
-              <span className="font-mono text-[0.875em] text-destructive">
-                {removalRequiredPhrase}
-              </span>{" "}
-              to confirm.
-            </Label>
-            <Input
-              id="member-remove-confirm"
-              name="confirm-phrase"
-              autoComplete="off"
-              autoFocus
-              value={removeConfirmInput}
-              onChange={(e) => setRemoveConfirmInput(e.target.value)}
-              placeholder={removalRequiredPhrase}
-              className="font-mono"
-              aria-invalid={
-                removeConfirmInput.length > 0 && !removalTypedOk
-              }
-            />
-            {removeConfirmInput.length > 0 && !removalTypedOk ? (
-              <p className="text-xs text-muted-foreground">
-                Phrase must match exactly (letters only, case insensitive).
-              </p>
-            ) : null}
-          </div>
-          <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <Button
-              type="button"
-              variant="ghost"
-              className="rounded-xl"
-              disabled={busyRow != null}
-              onClick={() => setRemoveTarget(null)}
-            >
-              Go back
-            </Button>
-            <Button
-              type="button"
-              variant="destructive"
-              className="rounded-xl"
-              disabled={!removalTypedOk || busyRow != null}
-              onClick={() => void confirmRemove()}
-            >
-              {busyRow
-                ? "Working…"
-                : cancellingInvite
-                  ? "Cancel invitation"
-                  : "Remove member"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+        title={
+          cancellingInvite ? "Cancel invitation?" : "Remove household member?"
+        }
+        titleClassName="pr-6"
+        contentClassName="gap-1 w-[min(calc(100vw-2rem),26rem)]"
+        description={
+          cancellingInvite ? (
+            <>
+              This revokes their invite link. They will no longer be able to join using that
+              invitation — you can send a new invite later.
+            </>
+          ) : (
+            <>
+              This person loses access immediately. You can invite them again only by sending a new
+              invitation.
+            </>
+          )
+        }
+        confirmationPhrase={removalRequiredPhrase}
+        phraseInputId="member-remove-confirm"
+        confirmLabel={
+          cancellingInvite ? "Cancel invitation" : "Remove member"
+        }
+        pendingConfirmLabel="Working…"
+        pending={
+          busyRow != null &&
+          removeTarget != null &&
+          busyRow === removeTarget.id
+        }
+        cancelLabel="Go back"
+        onConfirm={confirmRemove}
+      />
 
       <Dialog
         open={nameInviteTarget != null}

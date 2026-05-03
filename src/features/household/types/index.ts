@@ -4,6 +4,15 @@ export interface HouseholdCapabilities {
   canInviteMember: boolean;
   canViewMembers: boolean;
   canManageHousehold: boolean;
+  /**
+   * Budget module gate (planned). Until Budget ships, callers may safely read these booleans when
+   * sketching UX; they intentionally mirror roster roles so shells do not regress when rules land.
+   */
+  canViewBudget: boolean;
+  /** Edit draft lines, allocations, templates — excludes structural household-admin tasks. */
+  canEditBudget: boolean;
+  /** Close periods, post or approve consolidated budget movements — elevated money control. */
+  canManageBudget: boolean;
 }
 
 export interface HouseholdRecord {
@@ -45,6 +54,9 @@ export function resolveHouseholdCapabilities(
       canInviteMember: false,
       canViewMembers: false,
       canManageHousehold: false,
+      canViewBudget: false,
+      canEditBudget: false,
+      canManageBudget: false,
     };
   }
 
@@ -53,6 +65,20 @@ export function resolveHouseholdCapabilities(
       canInviteMember: true,
       canViewMembers: true,
       canManageHousehold: true,
+      canViewBudget: true,
+      canEditBudget: true,
+      canManageBudget: true,
+    };
+  }
+
+  if (role === "contributor") {
+    return {
+      canInviteMember: false,
+      canViewMembers: true,
+      canManageHousehold: false,
+      canViewBudget: true,
+      canEditBudget: true,
+      canManageBudget: false,
     };
   }
 
@@ -60,5 +86,8 @@ export function resolveHouseholdCapabilities(
     canInviteMember: false,
     canViewMembers: true,
     canManageHousehold: false,
+    canViewBudget: true,
+    canEditBudget: false,
+    canManageBudget: false,
   };
 }
