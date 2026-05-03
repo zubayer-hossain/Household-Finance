@@ -1,0 +1,129 @@
+# Architecture Rules
+
+## Core Architecture
+Use strict separation of concerns:
+
+- UI
+- state
+- business logic
+- persistence
+- authorization
+
+Do not mix these layers.
+
+---
+
+## Frontend Rules
+- Use Next.js App Router
+- Use feature-based architecture
+- Use TypeScript
+- Use Tailwind + shadcn/ui
+- Mobile-first only
+
+Do not build desktop-first layouts.
+
+---
+
+## Feature Boundaries
+Organize code by feature domain.
+
+Use:
+- features/auth
+- features/household
+- features/budgets
+- features/transactions
+- features/recurring
+- features/dashboard
+- features/insights
+
+Do not organize business logic globally by file type.
+
+---
+
+## Component Rules
+Components are UI only.
+
+Components must not:
+- contain business logic
+- call Supabase directly
+- contain authorization logic
+- contain complex mutation logic
+
+Components render UI only.
+
+---
+
+## Data Access Rules
+Components must never query or mutate Supabase directly.
+
+Always use:
+- feature services
+- feature hooks
+
+Business logic belongs in services.
+
+---
+
+## State Rules
+Use:
+- TanStack Query for server state
+- Zustand for client app state
+- React Hook Form + Zod for forms
+
+Never:
+- store server state in Zustand
+- manage forms in Zustand
+
+---
+
+## Auth Rules
+- Supabase Auth handles authentication
+- Household membership handles authorization
+- Never mix auth and permissions
+- Never rely on frontend-only authorization
+
+Authorization must be enforced in backend and RLS.
+
+---
+
+## Permission Rules
+Never hardcode role checks in UI.
+
+Never do:
+- role === "owner"
+
+Always use capabilities:
+- canInviteMember
+- canEditBudget
+- canCloseMonth
+- canAddExpense
+
+Role resolution must be centralized.
+
+---
+
+## Backend Rules
+Supabase is source of truth.
+
+Supabase owns:
+- auth
+- persistence
+- storage
+- RLS
+- security
+
+Frontend is only a client.
+
+---
+
+## Audit Rules
+All meaningful financial mutations must be auditable.
+
+Never skip audit for:
+- budget approval
+- budget adjustment
+- reallocation
+- transaction edit
+- transaction delete
+- month close
+- recurring toggle

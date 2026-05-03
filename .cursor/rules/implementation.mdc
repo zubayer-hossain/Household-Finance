@@ -1,0 +1,91 @@
+# Implementation Rules
+
+## Scope Discipline
+Implement only the requested module.
+
+Do not:
+- expand scope
+- build future modules early
+- modify unrelated modules
+- introduce phase 2 or phase 3 features
+
+Stay inside the requested scope.
+
+---
+
+## Change Discipline
+Do not rewrite stable code without explicit instruction.
+
+Do not refactor unrelated modules while implementing a requested feature.
+
+Touch only what is necessary for the requested scope.
+
+---
+
+## Implementation Pattern
+Follow this structure for each feature:
+
+- components/
+- hooks/
+- services/
+- schemas/
+- types/
+
+Keep feature logic inside feature boundaries.
+
+---
+
+## Code Discipline
+- Keep components small
+- Keep services explicit
+- Keep hooks focused
+- Prefer clarity over abstraction
+- Do not over-engineer MVP
+
+Avoid unnecessary abstraction.
+
+---
+
+## Safety Rules
+Do not:
+- weaken RLS
+- bypass permissions
+- remove audit
+- move business logic into UI
+- duplicate business logic across layers
+
+Protect system integrity.
+
+---
+
+## UX Rules
+- mobile-first
+- fast
+- touch-friendly
+- low-friction
+- simple
+
+Do not overbuild UI.
+
+---
+
+## Testing Rules
+Every module must include:
+
+- unit coverage for business logic
+- UI coverage for critical interactions
+- permission coverage for guarded actions
+
+Do not skip meaningful tests.
+
+---
+
+## Output Discipline
+When implementing:
+- summarize what changed
+- list created files
+- list modified files
+- note assumptions
+- note risks
+
+Keep implementation explicit.

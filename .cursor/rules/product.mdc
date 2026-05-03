@@ -1,0 +1,86 @@
+# Product Rules
+
+## Product Identity
+This product is a mobile-first Household Financial Operating System.
+
+It is a shared household budgeting and expense management system.
+
+It is not:
+- a generic personal expense tracker
+- an accounting tool
+- bookkeeping software
+- an invoicing tool
+- a banking app
+
+The product is household-first, not user-first.
+
+All financial records belong to a household.
+
+Users participate in a household through role-based membership.
+
+This rule is non-negotiable.
+
+---
+
+## MVP Scope
+MVP includes only:
+
+- authentication
+- household management
+- membership
+- monthly budgets
+- budget categories
+- budget adjustments
+- budget reallocations
+- transactions
+- quick add expense
+- recurring expenses
+- attachments
+- dashboard
+- forecasting
+- monthly insights
+- monthly close
+- Bengali + English localization
+- audit logs
+
+Do not add beyond this scope unless explicitly instructed.
+
+---
+
+## Explicitly Out of Scope
+Do not add:
+
+- income tracking
+- wallet/account tracking
+- bank sync
+- card sync
+- debt tracking
+- lending tracker
+- installment tracking
+- investments
+- savings goals
+- AI receipt parsing
+- AI voice input
+- AI expense parsing
+- AI suggestions
+- AI coaching
+- tax/accounting workflows
+- invoicing
+- bookkeeping
+
+These are not MVP features.
+
+Do not implement them unless explicitly instructed.
+
+---
+
+## Product Rules
+- Household-first always
+- Mobile-first always
+- Expense-first workflow
+- Fast expense logging is critical
+- Budgeting must remain flexible
+- Financial changes must be auditable
+- Closed months are read-only
+- AI is optional and not part of MVP
+- App must work without AI

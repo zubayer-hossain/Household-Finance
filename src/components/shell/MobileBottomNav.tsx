@@ -1,0 +1,47 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+import { Home, LayoutGrid } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+
+const navCls =
+  "flex min-h-[2.875rem] flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-2 py-2 text-[11px] font-semibold transition-[color,transform,background-color] active:scale-[0.96] outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring md:rounded-lg";
+
+export function MobileBottomNav() {
+  const pathname = usePathname();
+  const homeActive = pathname === "/app";
+
+  return (
+    <nav
+      className="pointer-events-none fixed bottom-0 left-0 right-0 z-50 md:hidden"
+      aria-label="Primary navigation"
+    >
+      <div className="pointer-events-auto px-5 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2">
+        <div className="mx-auto grid max-w-xl grid-cols-2 gap-2 rounded-[1.375rem] border border-border/70 bg-card/92 p-2 shadow-[0_-8px_40px_-12px_hsl(223_43%_10%/0.16)] backdrop-blur-2xl">
+          <Link
+            href="/app"
+            prefetch
+            aria-current={homeActive ? "page" : undefined}
+            className={cn(navCls, homeActive ? "bg-primary/11 text-primary" : "text-muted-foreground")}
+          >
+            <Home className="size-[1.25rem]" strokeWidth={homeActive ? 2.25 : 2} aria-hidden />
+            <span className="leading-none">Home</span>
+          </Link>
+          <span
+            className={cn(
+              navCls,
+              "cursor-default text-muted-foreground/85 opacity-[0.88]"
+            )}
+            aria-hidden
+          >
+            <LayoutGrid className="size-[1.25rem] opacity-60" aria-hidden />
+            <span className="leading-none">Soon</span>
+          </span>
+        </div>
+      </div>
+    </nav>
+  );
+}
