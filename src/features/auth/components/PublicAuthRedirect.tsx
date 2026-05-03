@@ -16,6 +16,8 @@ import { BrandBar } from "@/components/shell/BrandBar";
 
 import { Skeleton } from "@/components/ui/skeleton";
 
+import { INVITE_SET_PASSWORD_PATH, userNeedsPasswordSet } from "@/features/auth/lib/user-password-setup";
+
 import { useAppShellStore } from "@/stores/use-app-shell-store";
 
 
@@ -48,7 +50,9 @@ export function PublicAuthRedirect({
 
     if (!hydrated || !user) return;
 
-    router.replace(fallback);
+    const next = userNeedsPasswordSet(user) ? INVITE_SET_PASSWORD_PATH : fallback;
+
+    router.replace(next);
 
   }, [hydrated, user, router, fallback]);
 

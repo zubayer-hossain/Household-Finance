@@ -3,18 +3,15 @@ import { z } from "zod";
 
 import {
   createServiceRoleClient,
-  ensurePublicUserRow,
-  resolveInvitationTarget,
-  throwNorm,
+  deliverPendingInviteEmail,
+  InviteeAlreadySignedInError,
   toErrorMessage,
 } from "@/app/api/household/lib/server-invite-mail";
 import { createSupabaseServer } from "@/services/supabase-server";
 
 const bodySchema = z.object({
   householdId: z.string().uuid(),
-  email: z.string().trim().email().toLowerCase(),
-  role: z.enum(["contributor", "viewer"]),
-  fullName: z.string().trim().max(120).optional(),
+  membershipId: z.string().uuid(),
 });
 
 export async function POST(req: Request) {
@@ -25,9 +22,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid request" }, { status: 400 });
     }
 
-    const { householdId, email, role, fullName } = parsed.data;
-    const seedDisplayName =
-      fullName && fullName.length > 0 ? fullName : undefined;
+    const { householdId, membershipId } = parsed.data;
 
     let serviceRoleClient: ReturnType<typeof createServiceRoleClient>;
     try {
@@ -63,60 +58,49 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    const { data: inviteRow, error: rowErr } = await serviceRoleClient
+      .from("household_members")
+      .select("id, user_id, status")
+      .eq("id", membershipId)
+      .eq("household_id", householdId)
+      .maybeSingle();
+
+    if (rowErr) {
+      return NextResponse.json({ error: rowErr.message }, { status: 400 });
+    }
+    if (!inviteRow || inviteRow.status !== "invited") {
+      return NextResponse.json(
+        { error: "No pending invitation found for that person." },
+        { status: 404 }
+      );
+    }
+
+    const { data: pubUser } = await serviceRoleClient
+      .from("users")
+      .select("full_name")
+      .eq("id", inviteRow.user_id)
+      .maybeSingle();
+    const seedDisplayName = pubUser?.full_name?.trim() || undefined;
+
     const inviteOrigin =
       process.env.NEXT_PUBLIC_APP_ORIGIN ??
       req.headers.get("origin") ??
       new URL(req.url).origin;
 
-    const { userId, membershipInvitePending } = await resolveInvitationTarget(
+    await deliverPendingInviteEmail(
       serviceRoleClient,
-      email,
+      inviteRow.user_id,
       inviteOrigin,
       seedDisplayName
     );
 
-    if (userId === user.id) {
-      return NextResponse.json(
-        { error: "You cannot invite yourself." },
-        { status: 400 }
-      );
-    }
-
-    await ensurePublicUserRow(serviceRoleClient, userId, seedDisplayName);
-
-    const membershipInsert = await serviceRoleClient.from("household_members").insert({
-      household_id: householdId,
-      user_id: userId,
-      role,
-      status: membershipInvitePending ? "invited" : "active",
-      invited_by: user.id,
-      joined_at: membershipInvitePending ? null : new Date().toISOString(),
-    });
-
-    if (membershipInsert.error) {
-      const insCode = (membershipInsert.error as { code?: string }).code;
-      if (insCode === "23505") {
-        return NextResponse.json(
-          { error: "User is already a member of this household." },
-          { status: 409 }
-        );
-      }
-      if (insCode === "23503") {
-        return NextResponse.json(
-          {
-            error:
-              "Could not link invitation to user profile (database constraint). Support can fix orphaned accounts.",
-          },
-          { status: 500 }
-        );
-      }
-      throwNorm(membershipInsert.error);
-    }
-
     return NextResponse.json({ ok: true });
   } catch (e: unknown) {
-    console.error("[household/invite]", toErrorMessage(e));
-    const message = toErrorMessage(e) || "Invitation failed.";
+    if (e instanceof InviteeAlreadySignedInError) {
+      return NextResponse.json({ error: e.message }, { status: 409 });
+    }
+    console.error("[household/resend-invite]", toErrorMessage(e));
+    const message = toErrorMessage(e) || "Could not resend invitation.";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

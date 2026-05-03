@@ -34,6 +34,16 @@ export const authService = {
     if (error) throw error;
   },
 
+  /** Clears `needs_password` in user metadata so app routes unlock after invite acceptance. */
+  async completeInvitePassword(password: string) {
+    const supabase = getSupabaseBrowser();
+    const { error } = await supabase.auth.updateUser({
+      password,
+      data: { needs_password: false },
+    });
+    if (error) throw error;
+  },
+
   onAuthChange(
     listener: (event: AuthChangeEvent, session: Session | null) => void | Promise<void>
   ) {    const supabase = getSupabaseBrowser();

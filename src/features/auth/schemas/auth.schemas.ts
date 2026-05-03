@@ -17,3 +17,16 @@ export const signupSchema = z
   .strict();
 
 export type SignupSchema = z.infer<typeof signupSchema>;
+
+export const inviteSetPasswordSchema = z
+  .object({
+    password: z.string().min(8, "At least 8 characters"),
+    confirmPassword: z.string().min(8, "At least 8 characters"),
+  })
+  .strict()
+  .refine((d) => d.password === d.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+export type InviteSetPasswordSchema = z.infer<typeof inviteSetPasswordSchema>;

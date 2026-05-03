@@ -10,15 +10,24 @@ function LoginInviteHintInner() {
   const reason = sp.get("reason");
   const detail = sp.get("detail") ?? sp.get("message");
 
+  if (reason === "invite" && detail) {
+    return (
+      <FormCallout tone="neutral" className="mb-4 text-left leading-relaxed">
+        {detail}
+      </FormCallout>
+    );
+  }
+
   if (reason !== "oauth" || detail) return null;
 
   return (
     <FormCallout tone="neutral" className="mb-4 text-left leading-relaxed">
-      <span className="font-medium text-foreground">Were you invited?</span> Your invitation is a{" "}
-      <strong className="font-semibold text-foreground">magic link</strong>, not a password yet. Tap
-      the button in that email — you should arrive already signed into your household. If you see
-      this screen instead, go back and use the invite link again, or ask the admin to send a fresh
-      invite.
+      <span className="font-medium text-foreground">Were you invited?</span> Use the button in your
+      invitation email — you will land on a short screen to{" "}
+      <strong className="font-semibold text-foreground">create your password</strong>, then enter the
+      app. If you signed out before saving a password, open the invite again or ask a household admin to
+      resend it from <span className="font-medium text-foreground">Members</span> (Resend email on your
+      pending row).
     </FormCallout>
   );
 }

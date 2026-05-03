@@ -19,18 +19,23 @@ export type HouseholdDeletionAssessment = {
 };
 
 export const householdService = {
+  async finalizePendingHouseholdInvites(): Promise<void> {
+    const supabase = getSupabaseBrowser();
+    const finalize = await supabase.rpc("finalize_pending_household_invites");
+    if (finalize.error && process.env.NODE_ENV === "development") {
+      console.warn(
+        "[finalizePendingHouseholdInvites] finalize_pending_household_invites:",
+        finalize.error.message
+      );
+    }
+  },
+
   async listMyMemberships(): Promise<HouseholdMembership[]> {
     const supabase = getSupabaseBrowser();
     const uid = (await supabase.auth.getUser()).data.user?.id;
     if (!uid) return [];
 
-    const finalize = await supabase.rpc("finalize_pending_household_invites");
-    if (finalize.error && process.env.NODE_ENV === "development") {
-      console.warn(
-        "[listMyMemberships] finalize_pending_household_invites:",
-        finalize.error.message
-      );
-    }
+    await householdService.finalizePendingHouseholdInvites();
 
     const { data, error } = await supabase.rpc("list_my_household_memberships");
 

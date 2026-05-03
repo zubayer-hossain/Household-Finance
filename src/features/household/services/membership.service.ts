@@ -106,6 +106,22 @@ export const membershipService = {
     return { ok: true };
   },
 
+  async resendInviteEmail(input: {
+    householdId: string;
+    membershipId: string;
+  }): Promise<{ ok: true } | never> {
+    const res = await fetch("/api/household/resend-invite", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(inviteApiErrorMessage(body));
+    }
+    return { ok: true };
+  },
+
   async updatePendingInviteDisplayName(
     input: UpdatePendingInviteNameSchema
   ): Promise<{ ok: true } | never> {

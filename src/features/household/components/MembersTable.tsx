@@ -103,6 +103,22 @@ export function MembersTable({
     }
   }
 
+  async function onResendInvite(row: MemberRow) {
+    setErrMsg(null);
+    setBusyRow(row.id);
+    try {
+      await membershipService.resendInviteEmail({
+        householdId,
+        membershipId: row.id,
+      });
+      await refresh();
+    } catch (e: unknown) {
+      setErrMsg(e instanceof Error ? e.message : "Could not resend invitation email");
+    } finally {
+      setBusyRow(null);
+    }
+  }
+
   async function saveInviteDisplayName() {
     if (!nameInviteTarget || !inviteNameDraft.trim()) return;
     const trimmed = inviteNameDraft.trim();
@@ -156,6 +172,9 @@ export function MembersTable({
   };
 
   const canEditInviteDisplayName = (row: MemberRow) =>
+    row.status === "invited" && canEditRow(row);
+
+  const canResendInviteEmail = (row: MemberRow) =>
     row.status === "invited" && canEditRow(row);
 
   const cancellingInvite = removeTarget?.status === "invited";
@@ -250,6 +269,18 @@ export function MembersTable({
                           Edit name
                         </Button>
                       ) : null}
+                      {canResendInviteEmail(m) ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={busyRow === m.id}
+                          className="max-w-full rounded-xl"
+                          onClick={() => void onResendInvite(m)}
+                        >
+                          Resend email
+                        </Button>
+                      ) : null}
                       {canRemoveRow(m) ? (
                         <Button
                           type="button"
@@ -305,6 +336,18 @@ export function MembersTable({
                 onClick={() => setNameInviteTarget(m)}
               >
                 Edit invitation name
+              </Button>
+            ) : null}
+            {canResendInviteEmail(m) ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-3 w-full rounded-xl"
+                disabled={busyRow === m.id}
+                onClick={() => void onResendInvite(m)}
+              >
+                Resend invitation email
               </Button>
             ) : null}
             {canEditRow(m) ? (
