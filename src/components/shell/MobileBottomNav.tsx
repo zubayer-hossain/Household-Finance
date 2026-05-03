@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { Home, PieChart, Receipt } from "lucide-react";
+import { Home, LayoutGrid, PieChart, Receipt } from "lucide-react";
 
 import { appShellContentClassName } from "@/components/shell/app-shell-content";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,7 @@ export function MobileBottomNav() {
   const homeActive = pathname === "/app";
   const txActive = pathname.startsWith("/app/transactions");
   const budgetsActive = pathname.startsWith("/app/budgets");
+  const categoriesActive = pathname.startsWith("/app/categories");
 
   return (
     <nav
@@ -26,7 +27,7 @@ export function MobileBottomNav() {
         <div
           className={cn(
             appShellContentClassName,
-            "grid grid-cols-3 gap-1.5 rounded-[1.375rem] border border-border/70 bg-card/92 p-2 shadow-[0_-8px_40px_-12px_hsl(223_43%_10%/0.16)] backdrop-blur-2xl"
+            "grid grid-cols-4 gap-1 rounded-[1.375rem] border border-border/70 bg-card/92 p-2 shadow-[0_-8px_40px_-12px_hsl(223_43%_10%/0.16)] backdrop-blur-2xl"
           )}
         >
           <Link
@@ -35,24 +36,8 @@ export function MobileBottomNav() {
             aria-current={homeActive ? "page" : undefined}
             className={cn(navCls, homeActive ? "bg-primary/11 text-primary" : "text-muted-foreground")}
           >
-            <Home className="size-[1.25rem]" strokeWidth={homeActive ? 2.25 : 2} aria-hidden />
+            <Home className="size-[1.125rem]" strokeWidth={homeActive ? 2.25 : 2} aria-hidden />
             <span className="leading-none">Home</span>
-          </Link>
-          <Link
-            href="/app/transactions"
-            prefetch
-            aria-current={txActive ? "page" : undefined}
-            className={cn(
-              navCls,
-              txActive ? "bg-primary/11 text-primary" : "text-muted-foreground"
-            )}
-          >
-            <Receipt
-              className="size-[1.25rem]"
-              strokeWidth={txActive ? 2.25 : 2}
-              aria-hidden
-            />
-            <span className="leading-none">Expenses</span>
           </Link>
           <Link
             href="/app/budgets"
@@ -64,11 +49,43 @@ export function MobileBottomNav() {
             )}
           >
             <PieChart
-              className="size-[1.25rem]"
+              className="size-[1.125rem]"
               strokeWidth={budgetsActive ? 2.25 : 2}
               aria-hidden
             />
             <span className="leading-none">Budgets</span>
+          </Link>
+          <Link
+            href="/app/categories"
+            prefetch
+            aria-current={categoriesActive ? "page" : undefined}
+            className={cn(
+              navCls,
+              categoriesActive ? "bg-primary/11 text-primary" : "text-muted-foreground"
+            )}
+          >
+            <LayoutGrid
+              className="size-[1.125rem]"
+              strokeWidth={categoriesActive ? 2.25 : 2}
+              aria-hidden
+            />
+            <span className="leading-none">Categories</span>
+          </Link>
+          <Link
+            href="/app/transactions"
+            prefetch
+            aria-current={txActive ? "page" : undefined}
+            className={cn(
+              navCls,
+              txActive ? "bg-primary/11 text-primary" : "text-muted-foreground"
+            )}
+          >
+            <Receipt
+              className="size-[1.125rem]"
+              strokeWidth={txActive ? 2.25 : 2}
+              aria-hidden
+            />
+            <span className="leading-none">Expenses</span>
           </Link>
         </div>
       </div>

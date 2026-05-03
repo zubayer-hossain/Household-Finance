@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
 import { ChevronLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,9 @@ import { BudgetReallocationSheet } from "@/features/budgets/components/BudgetRea
 import { BudgetSummaryCard } from "@/features/budgets/components/BudgetSummaryCard";
 import { EmptyBudgetState } from "@/features/budgets/components/EmptyBudgetState";
 import { MonthlyCloseDialog } from "@/features/budgets/components/MonthlyCloseDialog";
+import { DeleteDraftBudgetDialog } from "@/features/categories/components/DeleteDraftBudgetDialog";
+import { useDeleteDraftBudgetMutation } from "@/features/categories/hooks/use-delete-draft-budget-mutation";
+import { useDraftBudgetTransactionCountQuery } from "@/features/categories/hooks/use-draft-budget-transaction-count-query";
 import { useBudgetCategoriesQuery } from "@/features/budgets/hooks/use-budget-categories-query";
 import { useBudgetQuery } from "@/features/budgets/hooks/use-budget-query";
 import { useBudgetUiStore } from "@/features/budgets/stores/use-budget-ui-store";
@@ -22,6 +26,7 @@ import { useHouseholdMembershipsQuery } from "@/features/household/hooks/use-hou
 import { useAppShellStore } from "@/stores/use-app-shell-store";
 
 export function BudgetsRouteDetail() {
+  const router = useRouter();
   const params = useParams();
   const budgetId =
     typeof params.budgetId === "string"
@@ -34,6 +39,7 @@ export function BudgetsRouteDetail() {
   const setReallocationOpen = useBudgetUiStore((s) => s.setReallocationOpen);
   const setApproveOpen = useBudgetUiStore((s) => s.setApproveDialogOpen);
   const setCloseOpen = useBudgetUiStore((s) => s.setMonthlyCloseDialogOpen);
+  const [deleteDraftOpen, setDeleteDraftOpen] = useState(false);
 
   const { data: memberships } = useHouseholdMembershipsQuery(true);
 
@@ -57,6 +63,13 @@ export function BudgetsRouteDetail() {
   const { data: categories, isLoading: catLoading } = useBudgetCategoriesQuery(
     budgetId,
     Boolean(budgetId)
+  );
+
+  const deleteDraftMut = useDeleteDraftBudgetMutation(activeHouseholdId);
+  const draftTxCount = useDraftBudgetTransactionCountQuery(
+    budgetId,
+    activeHouseholdId,
+    Boolean(budget?.status === "draft" && budgetId && activeHouseholdId)
   );
 
   const list = categories ?? [];
@@ -169,6 +182,26 @@ export function BudgetsRouteDetail() {
               ) : null}
             </BudgetPermissionGate>
 
+            <BudgetPermissionGate need="canDeleteDraftBudget" fallback={null}>
+              {budget.status === "draft" ? (
+                <div className="rounded-2xl border border-border/80 bg-muted/30 px-4 py-3">
+                  <p className="text-sm font-medium text-foreground">Draft cleanup</p>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                    Remove this month&apos;s draft only if you have not logged expenses yet.
+                    Active or closed months cannot be deleted.
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="mt-3 w-full rounded-xl border-destructive/40 text-destructive hover:bg-destructive/10 sm:w-auto"
+                    onClick={() => setDeleteDraftOpen(true)}
+                  >
+                    Delete draft budget…
+                  </Button>
+                </div>
+              ) : null}
+            </BudgetPermissionGate>
+
             {list.length === 0 ? (
               <EmptyBudgetState
                 title="No categories yet"
@@ -203,6 +236,19 @@ export function BudgetsRouteDetail() {
             <MonthlyCloseDialog
               householdId={activeHouseholdId}
               budgetId={budget.id}
+            />
+
+            <DeleteDraftBudgetDialog
+              open={deleteDraftOpen}
+              onOpenChange={setDeleteDraftOpen}
+              budget={budget}
+              transactionCount={draftTxCount.data ?? 0}
+              pending={deleteDraftMut.isPending}
+              onConfirm={async () => {
+                await deleteDraftMut.mutateAsync(budget.id);
+                setDeleteDraftOpen(false);
+                router.push("/app/budgets");
+              }}
             />
           </>
         ) : null}

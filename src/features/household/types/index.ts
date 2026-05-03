@@ -19,6 +19,12 @@ export interface HouseholdCapabilities {
   /** Fiscal close / lock periods so spend cannot rewrite history. */
   canCloseMonth: boolean;
 
+  /** Household spending category templates (/app/categories). */
+  canViewCategories: boolean;
+  canManageCategories: boolean;
+  /** Remove a draft monthly budget with no expenses (guarded in DB + UI). */
+  canDeleteDraftBudget: boolean;
+
   /** Transactions module — capability surface matches RLS + triggers. */
   canViewTransactions: boolean;
   canCreateTransaction: boolean;
@@ -72,6 +78,9 @@ export function resolveHouseholdCapabilities(
       canEditBudget: false,
       canApproveBudget: false,
       canCloseMonth: false,
+      canViewCategories: false,
+      canManageCategories: false,
+      canDeleteDraftBudget: false,
       canViewTransactions: false,
       canCreateTransaction: false,
       canEditOwnTransaction: false,
@@ -91,6 +100,9 @@ export function resolveHouseholdCapabilities(
       canEditBudget: true,
       canApproveBudget: true,
       canCloseMonth: true,
+      canViewCategories: true,
+      canManageCategories: true,
+      canDeleteDraftBudget: true,
       canViewTransactions: true,
       canCreateTransaction: true,
       canEditOwnTransaction: true,
@@ -110,6 +122,9 @@ export function resolveHouseholdCapabilities(
       canEditBudget: true,
       canApproveBudget: false,
       canCloseMonth: false,
+      canViewCategories: true,
+      canManageCategories: true,
+      canDeleteDraftBudget: true,
       canViewTransactions: true,
       canCreateTransaction: true,
       canEditOwnTransaction: true,
@@ -128,6 +143,9 @@ export function resolveHouseholdCapabilities(
     canEditBudget: false,
     canApproveBudget: false,
     canCloseMonth: false,
+    canViewCategories: true,
+    canManageCategories: false,
+    canDeleteDraftBudget: false,
     canViewTransactions: true,
     canCreateTransaction: false,
     canEditOwnTransaction: false,

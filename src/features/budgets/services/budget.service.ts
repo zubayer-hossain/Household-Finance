@@ -7,6 +7,7 @@ import type {
   RenameBudgetCategorySchema,
 } from "@/features/budgets/schemas/budget.schemas";
 import type { BudgetCategoryRow, MonthlyBudgetRow } from "@/features/budgets/types";
+import { insertBudgetCategoriesFromHouseholdTemplates } from "@/features/categories/services/category.service";
 import { getSupabaseBrowser } from "@/services/supabase-client";
 
 function asDbMessage(err: unknown): string {
@@ -147,7 +148,14 @@ export const budgetService = {
       }
       throw new Error(asDbMessage(error));
     }
-    return mapBudgetRow(data as unknown as Record<string, unknown>);
+    const row = mapBudgetRow(data as unknown as Record<string, unknown>);
+    await insertBudgetCategoriesFromHouseholdTemplates({
+      supabase,
+      householdId: opts.householdId,
+      monthlyBudgetId: row.id,
+    });
+    await budgetService.syncMonthlyBudgetTotals(row.id);
+    return row;
   },
 
   async listCategories(monthlyBudgetId: string): Promise<BudgetCategoryRow[]> {

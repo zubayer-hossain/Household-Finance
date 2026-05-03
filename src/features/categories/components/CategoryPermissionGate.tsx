@@ -5,22 +5,17 @@ import type { ReactNode } from "react";
 import { PermissionGate } from "@/features/household/components/PermissionGate";
 import type { HouseholdCapabilities } from "@/features/household/types";
 
-type BudgetCap = keyof Pick<
+type CategoryCap = keyof Pick<
   HouseholdCapabilities,
-  | "canViewBudgets"
-  | "canCreateBudget"
-  | "canEditBudget"
-  | "canApproveBudget"
-  | "canCloseMonth"
-  | "canDeleteDraftBudget"
+  "canViewCategories" | "canManageCategories" | "canDeleteDraftBudget"
 >;
 
-export function BudgetPermissionGate({
+export function CategoryPermissionGate({
   need,
   fallback = null,
   children,
 }: {
-  need: BudgetCap | BudgetCap[];
+  need: CategoryCap | CategoryCap[];
   fallback?: ReactNode;
   children: ReactNode;
 }) {

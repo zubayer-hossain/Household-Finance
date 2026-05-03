@@ -11,6 +11,7 @@ describe("Budget permission surface (capability gates)", () => {
       expect(c.canEditBudget).toBe(true);
       expect(c.canApproveBudget).toBe(true);
       expect(c.canCloseMonth).toBe(true);
+      expect(c.canDeleteDraftBudget).toBe(true);
     }
   });
 
@@ -21,6 +22,7 @@ describe("Budget permission surface (capability gates)", () => {
     expect(c.canEditBudget).toBe(true);
     expect(c.canApproveBudget).toBe(false);
     expect(c.canCloseMonth).toBe(false);
+    expect(c.canDeleteDraftBudget).toBe(true);
   });
 
   it("locks elevated budget actions for viewers", () => {
@@ -30,5 +32,6 @@ describe("Budget permission surface (capability gates)", () => {
     expect(c.canEditBudget).toBe(false);
     expect(c.canApproveBudget).toBe(false);
     expect(c.canCloseMonth).toBe(false);
+    expect(c.canDeleteDraftBudget).toBe(false);
   });
 });

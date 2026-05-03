@@ -20,6 +20,11 @@ const items: NavItem[] = [
     isActive: (p) => p.startsWith("/app/budgets"),
   },
   {
+    href: "/app/categories",
+    label: "Categories",
+    isActive: (p) => p.startsWith("/app/categories"),
+  },
+  {
     href: "/app/household",
     label: "Household",
     isActive: (p) => p === "/app/household",

@@ -9,6 +9,8 @@ export const qk = {
   budget: (budgetId: string) => ["budget", budgetId] as const,
   budgetCategories: (budgetId: string) =>
     ["budget-categories", budgetId] as const,
+  householdCategories: (householdId: string | null, includeArchived?: boolean) =>
+    ["household-categories", householdId, includeArchived ?? false] as const,
   transactions: (
     householdId: string | null,
     monthlyBudgetId: string | null,
