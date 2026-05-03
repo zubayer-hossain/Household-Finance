@@ -4,19 +4,24 @@ import Link from "next/link";
 import { Suspense, useLayoutEffect } from "react";
 import { useSearchParams } from "next/navigation";
 
+import { Button } from "@/components/ui/button";
+import { FormCallout } from "@/components/ui/form-callout";
 import { Skeleton } from "@/components/ui/skeleton";
-import { InviteMemberForm } from "@/features/household/components/InviteMemberForm";
+import { InviteMemberDialog } from "@/features/household/components/InviteMemberForm";
 import { MembersTable } from "@/features/household/components/MembersTable";
 import { PermissionGate } from "@/features/household/components/PermissionGate";
+import { useHouseholdCapabilities } from "@/features/household/hooks/use-household-capabilities";
 import { useHouseholdMembershipsQuery } from "@/features/household/hooks/use-household-memberships-query";
 import { useMembersQuery } from "@/features/household/hooks/use-members-query";
 import { useAppShellStore } from "@/stores/use-app-shell-store";
+import { cn } from "@/lib/utils";
 
 function MembersRouteBody() {
   const searchParams = useSearchParams();
   const requestedId = searchParams.get("householdId");
 
   const activeId = useAppShellStore((s) => s.activeHouseholdId);
+  const user = useAppShellStore((s) => s.user);
   const setActiveMembership = useAppShellStore((s) => s.setActiveMembership);
 
   const { data: memberships, isLoading: membershipsLoading } =
@@ -50,12 +55,17 @@ function MembersRouteBody() {
     setActiveMembership,
   ]);
 
-  const { data: members, isLoading: membersLoading } = useMembersQuery(
-    targetHouseholdId ?? null
-  );
+  const {
+    data: members,
+    isLoading: membersLoading,
+    error: membersError,
+    refetch: refetchMembers,
+  } = useMembersQuery(targetHouseholdId ?? null);
 
   const activeMembership =
     memberships?.find((m) => m.householdId === targetHouseholdId) ?? null;
+
+  const headerCaps = useHouseholdCapabilities();
 
   if (membershipsLoading) {
     return (
@@ -66,19 +76,21 @@ function MembersRouteBody() {
   if (requestedInvalid) {
     return (
       <div className="flex flex-col gap-8">
-        <header className="flex flex-wrap items-start justify-between gap-4">
+        <header className="flex flex-wrap items-center justify-between gap-4">
           <div className="space-y-1">
             <p className="eyebrow">People</p>
             <h1 className="text-[1.625rem] font-semibold leading-tight tracking-[-0.03em] sm:text-[1.75rem]">
               Members
             </h1>
           </div>
-          <Link
-            href="/app/household"
-            className="inline-flex min-h-[2.75rem] items-center justify-center rounded-xl border border-border/90 bg-card px-4 text-sm font-semibold text-muted-foreground shadow-soft transition-[transform,box-shadow] active:scale-[0.99] hover:text-foreground hover:shadow-card"
+          <Button
+            variant="outline"
+            size="default"
+            className="inline-flex h-[2.875rem] min-h-[2.875rem] max-h-[2.875rem] shrink-0 px-3 py-0 text-[0.8125rem] whitespace-nowrap shadow-soft sm:text-[0.9375rem] sm:px-5"
+            asChild
           >
-            Household management
-          </Link>
+            <Link href="/app/household">Household management</Link>
+          </Button>
         </header>
         <p className="max-w-xl rounded-2xl border border-destructive/30 bg-destructive/[0.06] px-5 py-4 text-[0.9375rem] leading-relaxed text-muted-foreground">
           This household wasn&apos;t found in your workspaces. Open{" "}
@@ -97,19 +109,21 @@ function MembersRouteBody() {
   if (!targetHouseholdId) {
     return (
       <div className="flex flex-col gap-8">
-        <header className="flex flex-wrap items-start justify-between gap-4">
+        <header className="flex flex-wrap items-center justify-between gap-4">
           <div className="space-y-1">
             <p className="eyebrow">People</p>
             <h1 className="text-[1.625rem] font-semibold leading-tight tracking-[-0.03em] sm:text-[1.75rem]">
               Members
             </h1>
           </div>
-          <Link
-            href="/app/household"
-            className="inline-flex min-h-[2.75rem] items-center justify-center rounded-xl border border-border/90 bg-card px-4 text-sm font-semibold text-muted-foreground shadow-soft transition-[transform,box-shadow] active:scale-[0.99] hover:text-foreground hover:shadow-card"
+          <Button
+            variant="outline"
+            size="default"
+            className="inline-flex h-[2.875rem] min-h-[2.875rem] max-h-[2.875rem] shrink-0 px-3 py-0 text-[0.8125rem] whitespace-nowrap shadow-soft sm:text-[0.9375rem] sm:px-5"
+            asChild
           >
-            Household management
-          </Link>
+            <Link href="/app/household">Household management</Link>
+          </Button>
         </header>
         <div className="max-w-xl rounded-2xl border border-border/80 bg-muted/40 px-5 py-5 text-[0.9375rem] leading-relaxed text-muted-foreground">
           Choose a household first. Open{" "}
@@ -120,7 +134,7 @@ function MembersRouteBody() {
             household management
           </Link>{" "}
           and select <span className="font-medium text-foreground">Open as workspace</span>{" "}
-          on a card, or use the link from there to manage members.
+          on a card, or open members from there.
         </div>
       </div>
     );
@@ -128,8 +142,8 @@ function MembersRouteBody() {
 
   return (
     <div className="flex flex-col gap-8">
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div className="space-y-1">
+      <header className="flex flex-wrap items-center justify-between gap-4">
+        <div className="min-w-0 flex-1 space-y-1">
           <p className="eyebrow">People</p>
           <h1 className="text-[1.625rem] font-semibold leading-tight tracking-[-0.03em] sm:text-[1.75rem]">
             Members
@@ -144,30 +158,61 @@ function MembersRouteBody() {
             </p>
           ) : null}
         </div>
-        <Link
-          href="/app/household"
-          className="inline-flex min-h-[2.75rem] items-center justify-center rounded-xl border border-border/90 bg-card px-4 text-sm font-semibold text-muted-foreground shadow-soft transition-[transform,box-shadow] active:scale-[0.99] hover:text-foreground hover:shadow-card"
+        <div
+          className={cn(
+            "flex min-w-0 shrink-0 items-stretch gap-2",
+            headerCaps?.canInviteMember
+              ? "w-full sm:w-auto sm:justify-end"
+              : "w-full justify-end sm:w-auto"
+          )}
         >
-          Household management
-        </Link>
+          <PermissionGate need="canInviteMember">
+            <div className="min-w-0 flex-1 basis-0 sm:flex-initial sm:basis-auto">
+              <InviteMemberDialog
+                householdId={targetHouseholdId}
+                triggerButtonClassName="w-full justify-center"
+              />
+            </div>
+          </PermissionGate>
+          <Button
+            variant="outline"
+            size="default"
+            className={cn(
+              "inline-flex h-[2.875rem] min-h-[2.875rem] max-h-[2.875rem] items-center justify-center px-3 py-0 text-[0.8125rem] whitespace-nowrap shadow-soft sm:text-[0.9375rem] sm:px-5",
+              headerCaps?.canInviteMember
+                ? "min-w-0 flex-1 basis-0 sm:flex-initial sm:basis-auto"
+                : "shrink-0"
+            )}
+            asChild
+          >
+            <Link href="/app/household">Household management</Link>
+          </Button>
+        </div>
       </header>
+
+      {membersError ? (
+        <FormCallout tone="destructive">
+          Could not load the member list ({membersError.message}).{" "}
+          <button
+            type="button"
+            className="font-semibold underline underline-offset-2"
+            onClick={() => void refetchMembers()}
+          >
+            Retry
+          </button>
+        </FormCallout>
+      ) : null}
 
       {membersLoading ? (
         <Skeleton className="h-56 w-full rounded-3xl shadow-soft" />
-      ) : members ? (
-        <MembersTable members={members} />
-      ) : null}
-
-      <PermissionGate
-        need="canInviteMember"
-        fallback={
-          <div className="rounded-2xl border border-border/80 bg-muted/45 px-4 py-5 text-[0.9375rem] leading-relaxed text-muted-foreground">
-            Only owners and admins can invite members.
-          </div>
-        }
-      >
-        <InviteMemberForm householdId={targetHouseholdId} />
-      </PermissionGate>
+      ) : (
+        <MembersTable
+          householdId={targetHouseholdId}
+          members={members ?? []}
+          viewerUserId={user?.id ?? null}
+          viewerRole={activeMembership?.role ?? null}
+        />
+      )}
 
       <Link
         href="/app"

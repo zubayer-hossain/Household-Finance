@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 import { Home, LayoutGrid } from "lucide-react";
 
+import { appShellContentClassName } from "@/components/shell/app-shell-content";
 import { cn } from "@/lib/utils";
 
 const navCls =
@@ -19,8 +20,13 @@ export function MobileBottomNav() {
       className="pointer-events-none fixed bottom-0 left-0 right-0 z-50 md:hidden"
       aria-label="Primary navigation"
     >
-      <div className="pointer-events-auto px-5 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2">
-        <div className="mx-auto grid max-w-xl grid-cols-2 gap-2 rounded-[1.375rem] border border-border/70 bg-card/92 p-2 shadow-[0_-8px_40px_-12px_hsl(223_43%_10%/0.16)] backdrop-blur-2xl">
+      <div className="pointer-events-auto pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2">
+        <div
+          className={cn(
+            appShellContentClassName,
+            "grid grid-cols-2 gap-2 rounded-[1.375rem] border border-border/70 bg-card/92 p-2 shadow-[0_-8px_40px_-12px_hsl(223_43%_10%/0.16)] backdrop-blur-2xl"
+          )}
+        >
           <Link
             href="/app"
             prefetch

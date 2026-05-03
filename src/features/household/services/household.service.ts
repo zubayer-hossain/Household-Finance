@@ -172,15 +172,10 @@ export const householdService = {
   },
 
   async deleteHousehold(householdId: string): Promise<void> {
-    const { allowed, reasons } =
-      await householdService.assessHouseholdDeletion(householdId);
-    if (!allowed) throw new Error(reasons.join("\n"));
-
     const supabase = getSupabaseBrowser();
-    const { error } = await supabase
-      .from("households")
-      .delete()
-      .eq("id", householdId);
+    const { error } = await supabase.rpc("delete_my_household", {
+      p_household_id: householdId,
+    });
     if (error) throw new Error(asDbMessage(error));
   },
 

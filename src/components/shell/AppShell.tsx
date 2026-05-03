@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 
 import { Separator } from "@/components/ui/separator";
+import { appShellContentClassName } from "@/components/shell/app-shell-content";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { MobileBottomNav } from "@/components/shell/MobileBottomNav";
 import type { HouseholdMembership } from "@/features/household/types";
@@ -21,10 +22,14 @@ export function AppShell({
         aria-hidden
       />
       <AppHeader memberships={memberships} />
-      <main className="relative z-0 mx-auto flex w-full max-w-xl flex-1 flex-col px-5 pt-6 sm:px-6 md:pt-8 md:pb-2">
-        <div className="flex flex-1 flex-col gap-6">{children}</div>
+      <main
+        className={`relative z-0 flex flex-1 flex-col pt-6 md:pt-8 md:pb-2 ${appShellContentClassName}`}
+      >
+        <div className="flex min-w-0 flex-1 flex-col gap-6">{children}</div>
       </main>
-      <Separator className="relative z-10 hidden bg-border/75 md:block md:max-w-xl md:mx-auto" />
+      <Separator
+        className={`relative z-10 hidden bg-border/75 md:block ${appShellContentClassName}`}
+      />
       <MobileBottomNav />
     </div>
   );

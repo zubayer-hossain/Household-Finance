@@ -8,12 +8,14 @@ const bodySchema = z.object({
   householdId: z.string().uuid(),
   email: z.string().trim().email().toLowerCase(),
   role: z.enum(["contributor", "viewer"]),
+  fullName: z.string().trim().max(120).optional(),
 });
 
 async function resolveUserId(
   admin: SupabaseClient,
   email: string,
-  inviteRedirectOrigin: string
+  inviteRedirectOrigin: string,
+  seedDisplayName?: string
 ): Promise<{ userId: string; isNewInvite: boolean }> {
   let page = 1;
   const perPage = 200;
@@ -29,11 +31,19 @@ async function resolveUserId(
     page++;
   }
 
-  const invited = await admin.auth.admin.inviteUserByEmail(email, {
+  const inviteOptions: {
+    redirectTo: string;
+    data?: Record<string, string>;
+  } = {
     redirectTo:
       `${inviteRedirectOrigin.replace(/\/$/, "")}/auth/callback?next=` +
       encodeURIComponent("/onboarding"),
-  });
+  };
+  if (seedDisplayName) {
+    inviteOptions.data = { full_name: seedDisplayName };
+  }
+
+  const invited = await admin.auth.admin.inviteUserByEmail(email, inviteOptions);
 
   if (invited.error) throw invited.error;
   const uid = invited.data?.user?.id;
@@ -62,7 +72,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid request" }, { status: 400 });
     }
 
-    const { householdId, email, role } = parsed.data;
+    const { householdId, email, role, fullName } = parsed.data;
+    const seedDisplayName =
+      fullName && fullName.length > 0 ? fullName : undefined;
 
     let serviceRoleClient: ReturnType<typeof createServiceRoleClient>;
     try {
@@ -106,7 +118,8 @@ export async function POST(req: Request) {
     const { userId, isNewInvite } = await resolveUserId(
       serviceRoleClient,
       email,
-      inviteOrigin
+      inviteOrigin,
+      seedDisplayName
     );
 
     if (userId === user.id) {

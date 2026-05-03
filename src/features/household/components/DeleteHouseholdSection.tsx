@@ -177,7 +177,7 @@ export function DeleteHouseholdSection({
               )}
               size={compact ? "sm" : "default"}
             >
-              {compact ? "Delete household…" : "Delete this household…"}
+              {compact ? "Delete household" : "Delete this household"}
             </Button>
           </DialogTrigger>
           <DialogContent

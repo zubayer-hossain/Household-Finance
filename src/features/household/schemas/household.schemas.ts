@@ -11,9 +11,17 @@ export type CreateHouseholdSchema = z.infer<typeof createHouseholdSchema>;
 export const inviteMemberSchema = z.object({
   email: z.string().trim().email("Valid email required"),
   role: z.enum(["contributor", "viewer"]),
+  /** Optional seed for roster + new invitee metadata; members confirm or edit when they accept. */
+  fullName: z.string().max(120, "Name is too long").optional(),
 });
 
 export type InviteMemberSchema = z.infer<typeof inviteMemberSchema>;
+
+export const updateMemberRoleSchema = z.object({
+  role: z.enum(["admin", "contributor", "viewer"]),
+});
+
+export type UpdateMemberRoleSchema = z.infer<typeof updateMemberRoleSchema>;
 
 export const renameHouseholdSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(120, "Too long"),
