@@ -18,6 +18,14 @@ export interface HouseholdCapabilities {
   canApproveBudget: boolean;
   /** Fiscal close / lock periods so spend cannot rewrite history. */
   canCloseMonth: boolean;
+
+  /** Transactions module — capability surface matches RLS + triggers. */
+  canViewTransactions: boolean;
+  canCreateTransaction: boolean;
+  canEditOwnTransaction: boolean;
+  canEditAnyTransaction: boolean;
+  canDeleteOwnTransaction: boolean;
+  canDeleteAnyTransaction: boolean;
 }
 
 export interface HouseholdRecord {
@@ -64,6 +72,12 @@ export function resolveHouseholdCapabilities(
       canEditBudget: false,
       canApproveBudget: false,
       canCloseMonth: false,
+      canViewTransactions: false,
+      canCreateTransaction: false,
+      canEditOwnTransaction: false,
+      canEditAnyTransaction: false,
+      canDeleteOwnTransaction: false,
+      canDeleteAnyTransaction: false,
     };
   }
 
@@ -77,6 +91,12 @@ export function resolveHouseholdCapabilities(
       canEditBudget: true,
       canApproveBudget: true,
       canCloseMonth: true,
+      canViewTransactions: true,
+      canCreateTransaction: true,
+      canEditOwnTransaction: true,
+      canEditAnyTransaction: true,
+      canDeleteOwnTransaction: true,
+      canDeleteAnyTransaction: true,
     };
   }
 
@@ -90,6 +110,12 @@ export function resolveHouseholdCapabilities(
       canEditBudget: true,
       canApproveBudget: false,
       canCloseMonth: false,
+      canViewTransactions: true,
+      canCreateTransaction: true,
+      canEditOwnTransaction: true,
+      canEditAnyTransaction: false,
+      canDeleteOwnTransaction: true,
+      canDeleteAnyTransaction: false,
     };
   }
 
@@ -102,5 +128,11 @@ export function resolveHouseholdCapabilities(
     canEditBudget: false,
     canApproveBudget: false,
     canCloseMonth: false,
+    canViewTransactions: true,
+    canCreateTransaction: false,
+    canEditOwnTransaction: false,
+    canEditAnyTransaction: false,
+    canDeleteOwnTransaction: false,
+    canDeleteAnyTransaction: false,
   };
 }

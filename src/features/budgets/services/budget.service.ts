@@ -350,4 +350,51 @@ export const budgetService = {
 
     if (error) throw new Error(asDbMessage(error));
   },
+
+  /**
+   * Recompute each category's spent from posted, non-deleted transactions,
+   * update derived fields, then refresh the monthly budget rollup row.
+   */
+  async refreshCategorySpendFromTransactions(
+    monthlyBudgetId: string,
+    householdId: string
+  ): Promise<void> {
+    const supabase = getSupabaseBrowser();
+    const { data: rows, error } = await supabase
+      .from("transactions")
+      .select("budget_category_id, amount")
+      .eq("monthly_budget_id", monthlyBudgetId)
+      .eq("household_id", householdId)
+      .is("deleted_at", null)
+      .eq("status", "posted");
+
+    if (error) throw new Error(asDbMessage(error));
+
+    const byCat = new Map<string, number>();
+    for (const r of rows ?? []) {
+      const id = String(r.budget_category_id);
+      byCat.set(id, (byCat.get(id) ?? 0) + toNum(r.amount));
+    }
+
+    const categories = await budgetService.listCategories(monthlyBudgetId);
+    for (const c of categories) {
+      const spent = byCat.get(c.id) ?? 0;
+      const derived = computeCategoryDerivedFields({
+        ...c,
+        spent_amount: spent,
+      });
+      const { error: upErr } = await supabase
+        .from("budget_categories")
+        .update({
+          spent_amount: spent,
+          remaining_amount: derived.remaining_amount,
+          usage_percent: derived.usage_percent,
+        })
+        .eq("id", c.id);
+
+      if (upErr) throw new Error(asDbMessage(upErr));
+    }
+
+    await budgetService.syncMonthlyBudgetTotals(monthlyBudgetId);
+  },
 };

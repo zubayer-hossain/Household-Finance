@@ -9,4 +9,14 @@ export const qk = {
   budget: (budgetId: string) => ["budget", budgetId] as const,
   budgetCategories: (budgetId: string) =>
     ["budget-categories", budgetId] as const,
+  transactions: (
+    householdId: string | null,
+    monthlyBudgetId: string | null,
+    categoryId: string | null
+  ) =>
+    ["transactions", householdId, monthlyBudgetId, categoryId] as const,
+  transaction: (transactionId: string) =>
+    ["transaction", transactionId] as const,
+  transactionAttachments: (transactionId: string) =>
+    ["transaction-attachments", transactionId] as const,
 };

@@ -10,6 +10,11 @@ type NavItem = { href: string; label: string; isActive: (pathname: string) => bo
 const items: NavItem[] = [
   { href: "/app", label: "Home", isActive: (p) => p === "/app" },
   {
+    href: "/app/transactions",
+    label: "Expenses",
+    isActive: (p) => p.startsWith("/app/transactions"),
+  },
+  {
     href: "/app/budgets",
     label: "Budgets",
     isActive: (p) => p.startsWith("/app/budgets"),

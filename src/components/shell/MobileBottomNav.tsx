@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { Home, PieChart } from "lucide-react";
+import { Home, PieChart, Receipt } from "lucide-react";
 
 import { appShellContentClassName } from "@/components/shell/app-shell-content";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,7 @@ const navCls =
 export function MobileBottomNav() {
   const pathname = usePathname();
   const homeActive = pathname === "/app";
+  const txActive = pathname.startsWith("/app/transactions");
   const budgetsActive = pathname.startsWith("/app/budgets");
 
   return (
@@ -25,7 +26,7 @@ export function MobileBottomNav() {
         <div
           className={cn(
             appShellContentClassName,
-            "grid grid-cols-2 gap-2 rounded-[1.375rem] border border-border/70 bg-card/92 p-2 shadow-[0_-8px_40px_-12px_hsl(223_43%_10%/0.16)] backdrop-blur-2xl"
+            "grid grid-cols-3 gap-1.5 rounded-[1.375rem] border border-border/70 bg-card/92 p-2 shadow-[0_-8px_40px_-12px_hsl(223_43%_10%/0.16)] backdrop-blur-2xl"
           )}
         >
           <Link
@@ -36,6 +37,22 @@ export function MobileBottomNav() {
           >
             <Home className="size-[1.25rem]" strokeWidth={homeActive ? 2.25 : 2} aria-hidden />
             <span className="leading-none">Home</span>
+          </Link>
+          <Link
+            href="/app/transactions"
+            prefetch
+            aria-current={txActive ? "page" : undefined}
+            className={cn(
+              navCls,
+              txActive ? "bg-primary/11 text-primary" : "text-muted-foreground"
+            )}
+          >
+            <Receipt
+              className="size-[1.25rem]"
+              strokeWidth={txActive ? 2.25 : 2}
+              aria-hidden
+            />
+            <span className="leading-none">Expenses</span>
           </Link>
           <Link
             href="/app/budgets"
