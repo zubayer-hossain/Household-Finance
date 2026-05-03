@@ -47,8 +47,7 @@ export function DeleteHouseholdSection({
 
   if (!isOwner) return null;
 
-  const typedOk =
-    typed.trim().toLowerCase() === householdName.trim().toLowerCase();
+  const typedOk = typed.trim().toLowerCase() === "delete";
 
   async function executeDelete() {
     setActionError(null);
@@ -189,16 +188,18 @@ export function DeleteHouseholdSection({
               Delete &ldquo;{householdName}&rdquo;?
             </DialogTitle>
             <DialogDescription>
-              This cannot be undone. Confirm by typing the household name exactly below.
+              This cannot be undone and removes <span className="font-semibold text-foreground">&ldquo;
+              {householdName}&rdquo;</span> for everyone. Type the word{" "}
+              <span className="font-mono font-semibold text-foreground">delete</span> below to confirm.
             </DialogDescription>
 
             <div className="mt-4 space-y-2.5">
-              <Label htmlFor="hh-delete-confirm">Household name</Label>
+              <Label htmlFor="hh-delete-confirm">Type delete to confirm</Label>
               <Input
                 id="hh-delete-confirm"
                 value={typed}
                 onChange={(e) => setTyped(e.target.value)}
-                placeholder={householdName}
+                placeholder="delete"
                 autoComplete="off"
                 className="border-destructive/25"
               />

@@ -143,64 +143,32 @@ export const householdService = {
     );
   },
 
-  /** Read-only guards for UX before showing delete UI. Owner-only delete is enforced in RLS. */
+  /** Read-only guards for UX before showing delete UI. Owner enforced in RPC + RLS. */
   async assessHouseholdDeletion(
     householdId: string
   ): Promise<HouseholdDeletionAssessment> {
     const supabase = getSupabaseBrowser();
-    const reasons: string[] = [];
 
-    const [activeMembers, budgets, txs, recurring] = await Promise.all([
-      supabase
-        .from("household_members")
-        .select("*", { count: "exact", head: true })
-        .eq("household_id", householdId)
-        .eq("status", "active"),
-      supabase
-        .from("monthly_budgets")
-        .select("*", { count: "exact", head: true })
-        .eq("household_id", householdId),
-      supabase
-        .from("transactions")
-        .select("*", { count: "exact", head: true })
-        .eq("household_id", householdId)
-        .is("deleted_at", null),
-      supabase
-        .from("recurring_expenses")
-        .select("*", { count: "exact", head: true })
-        .eq("household_id", householdId),
-    ]);
+    const { data, error } = await supabase.rpc("household_deletion_assessment", {
+      p_household_id: householdId,
+    });
 
-    const errs = [activeMembers.error, budgets.error, txs.error, recurring.error];
-    const failed = errs.find(Boolean);
-    if (failed) throw new Error(asDbMessage(failed));
+    if (error) throw new Error(asDbMessage(error));
 
-    const memberCount = activeMembers.count ?? 0;
-    if (memberCount > 1) {
-      reasons.push(
-        "Other active members belong to this household. Remove teammates or deactivate their memberships before deleting."
-      );
+    const raw = data as unknown;
+    if (!raw || typeof raw !== "object") {
+      throw new Error("Unexpected response from household_deletion_assessment");
     }
 
-    if ((budgets.count ?? 0) > 0) {
-      reasons.push(
-        "Budget periods exist for this household. Clearing financial history isn’t supported from this screen yet."
-      );
+    const obj = raw as { allowed?: unknown; reasons?: unknown };
+    const allowed = Boolean(obj.allowed);
+    let reasons: string[] = [];
+    const r = obj.reasons;
+    if (Array.isArray(r)) {
+      reasons = r.filter((x): x is string => typeof x === "string");
     }
 
-    if ((txs.count ?? 0) > 0) {
-      reasons.push(
-        "Posted or draft transactions exist. Delete isn’t allowed while records remain."
-      );
-    }
-
-    if ((recurring.count ?? 0) > 0) {
-      reasons.push(
-        "Recurring expense templates exist for this household. Remove them before deleting."
-      );
-    }
-
-    return { allowed: reasons.length === 0, reasons };
+    return { allowed, reasons };
   },
 
   async deleteHousehold(householdId: string): Promise<void> {
