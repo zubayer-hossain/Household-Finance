@@ -5,14 +5,19 @@ export interface HouseholdCapabilities {
   canViewMembers: boolean;
   canManageHousehold: boolean;
   /**
-   * Budget module gate (planned). Until Budget ships, callers may safely read these booleans when
-   * sketching UX; they intentionally mirror roster roles so shells do not regress when rules land.
+   * Budget module (planned) — stable permission surface before RLS/feature work lands.
+   * UI-only keys; enforcement remains in Postgres policies when Budget ships.
    */
-  canViewBudget: boolean;
-  /** Edit draft lines, allocations, templates — excludes structural household-admin tasks. */
+  /** Read budgets, summaries, comparisons. */
+  canViewBudgets: boolean;
+  /** Start a new budget period, template shell, or zero-based draft scoped to household rules. */
+  canCreateBudget: boolean;
+  /** Edit draft allocations, amounts, categories while not finalized. */
   canEditBudget: boolean;
-  /** Close periods, post or approve consolidated budget movements — elevated money control. */
-  canManageBudget: boolean;
+  /** Sign off postings or reconcile planned vs settled figures (elevated). */
+  canApproveBudget: boolean;
+  /** Fiscal close / lock periods so spend cannot rewrite history. */
+  canCloseMonth: boolean;
 }
 
 export interface HouseholdRecord {
@@ -54,9 +59,11 @@ export function resolveHouseholdCapabilities(
       canInviteMember: false,
       canViewMembers: false,
       canManageHousehold: false,
-      canViewBudget: false,
+      canViewBudgets: false,
+      canCreateBudget: false,
       canEditBudget: false,
-      canManageBudget: false,
+      canApproveBudget: false,
+      canCloseMonth: false,
     };
   }
 
@@ -65,9 +72,11 @@ export function resolveHouseholdCapabilities(
       canInviteMember: true,
       canViewMembers: true,
       canManageHousehold: true,
-      canViewBudget: true,
+      canViewBudgets: true,
+      canCreateBudget: true,
       canEditBudget: true,
-      canManageBudget: true,
+      canApproveBudget: true,
+      canCloseMonth: true,
     };
   }
 
@@ -76,9 +85,11 @@ export function resolveHouseholdCapabilities(
       canInviteMember: false,
       canViewMembers: true,
       canManageHousehold: false,
-      canViewBudget: true,
+      canViewBudgets: true,
+      canCreateBudget: true,
       canEditBudget: true,
-      canManageBudget: false,
+      canApproveBudget: false,
+      canCloseMonth: false,
     };
   }
 
@@ -86,8 +97,10 @@ export function resolveHouseholdCapabilities(
     canInviteMember: false,
     canViewMembers: true,
     canManageHousehold: false,
-    canViewBudget: true,
+    canViewBudgets: true,
+    canCreateBudget: false,
     canEditBudget: false,
-    canManageBudget: false,
+    canApproveBudget: false,
+    canCloseMonth: false,
   };
 }
