@@ -163,8 +163,8 @@ export function InviteMemberForm({
       <CardHeader>
         <h2 className="text-lg font-semibold tracking-tight">Invite member</h2>
         <p className="text-[0.9375rem] leading-relaxed text-muted-foreground">
-          They must use the same email in Supabase Auth. New users receive an invite
-          email if your project supports it.
+          Use the teammate&apos;s real email — they&apos;ll receive an invitation message. The
+          button inside signs them straight into this app without a password on the first visit.
         </p>
       </CardHeader>
       <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -214,8 +214,8 @@ export function InviteMemberDialog({
       >
         <DialogTitle>Invite someone</DialogTitle>
         <DialogDescription id="invite-modal-desc">
-          They must sign in with this email. Add an optional name so your roster stays clear.
-          Brand-new invitees inherit it in their profile until they edit it during signup / account.
+          They sign in with this email. The invite email contains a one-tap link — no password is
+          required the first time. Add an optional name so your roster stays clear.
         </DialogDescription>
         <InviteMemberForm
           householdId={householdId}

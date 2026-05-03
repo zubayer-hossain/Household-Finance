@@ -69,10 +69,20 @@ export function MembersTable({
   const [errMsg, setErrMsg] = useState<string | null>(null);
   const [removeTarget, setRemoveTarget] = useState<MemberRow | null>(null);
   const [removeConfirmInput, setRemoveConfirmInput] = useState("");
+  const [nameInviteTarget, setNameInviteTarget] = useState<MemberRow | null>(null);
+  const [inviteNameDraft, setInviteNameDraft] = useState("");
 
   useEffect(() => {
     if (!removeTarget) setRemoveConfirmInput("");
   }, [removeTarget]);
+
+  useEffect(() => {
+    if (nameInviteTarget) {
+      setInviteNameDraft(nameInviteTarget.users?.full_name?.trim() ?? "");
+    } else {
+      setInviteNameDraft("");
+    }
+  }, [nameInviteTarget]);
 
   async function refresh() {
     await queryClient.invalidateQueries({ queryKey: qk.members(householdId) });
@@ -90,6 +100,26 @@ export function MembersTable({
       await refresh();
     } catch (e: unknown) {
       setErrMsg(e instanceof Error ? e.message : "Could not update role");
+    } finally {
+      setBusyRow(null);
+    }
+  }
+
+  async function saveInviteDisplayName() {
+    if (!nameInviteTarget || !inviteNameDraft.trim()) return;
+    const trimmed = inviteNameDraft.trim();
+    setErrMsg(null);
+    setBusyRow(nameInviteTarget.id);
+    try {
+      await membershipService.updatePendingInviteDisplayName({
+        householdId,
+        membershipId: nameInviteTarget.id,
+        fullName: trimmed,
+      });
+      setNameInviteTarget(null);
+      await refresh();
+    } catch (e: unknown) {
+      setErrMsg(e instanceof Error ? e.message : "Could not update name");
     } finally {
       setBusyRow(null);
     }
@@ -126,6 +156,9 @@ export function MembersTable({
     if (row.role === "owner") return false;
     return true;
   };
+
+  const canEditInviteDisplayName = (row: MemberRow) =>
+    row.status === "invited" && canEditRow(row);
 
   const cancellingInvite = removeTarget?.status === "invited";
   const removalRequiredPhrase =
@@ -210,25 +243,39 @@ export function MembersTable({
                 </td>
                 {caps.canInviteMember ? (
                   <td className="px-4 py-4 text-end align-middle">
-                    {canRemoveRow(m) ? (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={busyRow === m.id}
-                        title={
-                          m.status === "invited"
-                            ? "Cancel invitation — you will confirm in the next step"
-                            : "Remove this member — confirmation required"
-                        }
-                        className="max-w-full rounded-xl border-destructive/30 text-destructive hover:bg-destructive/[0.06]"
-                        onClick={() => setRemoveTarget(m)}
-                      >
-                        {m.status === "invited" ? "Cancel invite" : "Remove"}
-                      </Button>
-                    ) : (
-                      <span className="text-[12px] text-muted-foreground">—</span>
-                    )}
+                    <div className="flex flex-col items-end gap-2">
+                      {canEditInviteDisplayName(m) ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={busyRow === m.id}
+                          className="max-w-full rounded-xl"
+                          onClick={() => setNameInviteTarget(m)}
+                        >
+                          Edit name
+                        </Button>
+                      ) : null}
+                      {canRemoveRow(m) ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={busyRow === m.id}
+                          title={
+                            m.status === "invited"
+                              ? "Cancel invitation — you will confirm in the next step"
+                              : "Remove this member — confirmation required"
+                          }
+                          className="max-w-full rounded-xl border-destructive/30 text-destructive hover:bg-destructive/[0.06]"
+                          onClick={() => setRemoveTarget(m)}
+                        >
+                          {m.status === "invited" ? "Cancel invite" : "Remove"}
+                        </Button>
+                      ) : (
+                        <span className="text-[12px] text-muted-foreground">—</span>
+                      )}
+                    </div>
                   </td>
                 ) : null}
               </tr>
@@ -254,6 +301,18 @@ export function MembersTable({
               </div>
               {!canEditRow(m) ? <RoleBadge role={m.role} /> : null}
             </div>
+            {canEditInviteDisplayName(m) ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-3 w-full rounded-xl"
+                disabled={busyRow === m.id}
+                onClick={() => setNameInviteTarget(m)}
+              >
+                Edit invitation name
+              </Button>
+            ) : null}
             {canEditRow(m) ? (
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <NativeSelect
@@ -372,6 +431,54 @@ export function MembersTable({
                 : cancellingInvite
                   ? "Cancel invitation"
                   : "Remove member"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={nameInviteTarget != null}
+        onOpenChange={(o) => {
+          if (!o) setNameInviteTarget(null);
+        }}
+      >
+        <DialogContent className="w-[min(calc(100vw-2rem),24rem)] gap-5">
+          <DialogTitle>Edit invitation name</DialogTitle>
+          <DialogDescription id="invite-name-edit-desc">
+            This appears in everyone&apos;s member list until they finish joining. It updates both
+            their Supabase auth profile stub and household roster entry.
+          </DialogDescription>
+          <div className="space-y-2.5">
+            <Label htmlFor="invite-display-name-edit">Displayed name</Label>
+            <Input
+              id="invite-display-name-edit"
+              aria-describedby="invite-name-edit-desc"
+              autoComplete="name"
+              value={inviteNameDraft}
+              onChange={(e) => setInviteNameDraft(e.target.value)}
+              placeholder="Their name"
+            />
+          </div>
+          <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
+            <Button
+              type="button"
+              variant="ghost"
+              className="rounded-xl"
+              disabled={busyRow !== null}
+              onClick={() => setNameInviteTarget(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              className="rounded-xl"
+              disabled={
+                busyRow !== null ||
+                inviteNameDraft.trim().length === 0
+              }
+              onClick={() => void saveInviteDisplayName()}
+            >
+              {busyRow === nameInviteTarget?.id ? "Saving…" : "Save name"}
             </Button>
           </div>
         </DialogContent>

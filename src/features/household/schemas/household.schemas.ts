@@ -17,6 +17,14 @@ export const inviteMemberSchema = z.object({
 
 export type InviteMemberSchema = z.infer<typeof inviteMemberSchema>;
 
+export const updatePendingInviteNameSchema = z.object({
+  householdId: z.string().uuid(),
+  membershipId: z.string().uuid(),
+  fullName: z.string().trim().min(1, "Name is required").max(120, "Name is too long"),
+});
+
+export type UpdatePendingInviteNameSchema = z.infer<typeof updatePendingInviteNameSchema>;
+
 export const updateMemberRoleSchema = z.object({
   role: z.enum(["admin", "contributor", "viewer"]),
 });

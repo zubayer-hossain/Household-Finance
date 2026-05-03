@@ -118,6 +118,54 @@
 
 
 
+  /** Native controls that act as buttons */
+
+  button:enabled:not([readonly]),
+
+  input[type="submit"]:enabled:not([readonly]),
+
+  input[type="button"]:enabled:not([readonly]),
+
+  input[type="reset"]:enabled:not([readonly]) {
+
+    cursor: pointer;
+
+  }
+
+
+
+  button:disabled,
+
+  input[type="submit"]:disabled,
+
+  input[type="button"]:disabled,
+
+  input[type="reset"]:disabled {
+
+    cursor: not-allowed;
+
+  }
+
+
+
+  /** Non-native button roles */
+
+  [role="button"]:not([aria-disabled="true"]) {
+
+    cursor: pointer;
+
+  }
+
+
+
+  [role="button"][aria-disabled="true"] {
+
+    cursor: not-allowed;
+
+  }
+
+
+
   body {
 
     @apply min-h-dvh bg-background text-foreground antialiased font-sans;
