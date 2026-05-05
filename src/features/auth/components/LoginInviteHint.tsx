@@ -18,6 +18,14 @@ function LoginInviteHintInner() {
     );
   }
 
+  if (reason === "recovery" && detail) {
+    return (
+      <FormCallout tone="neutral" className="mb-4 text-left leading-relaxed">
+        {detail}
+      </FormCallout>
+    );
+  }
+
   if (reason !== "oauth" || detail) return null;
 
   return (

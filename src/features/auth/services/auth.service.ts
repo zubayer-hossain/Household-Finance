@@ -1,5 +1,9 @@
 import { getSupabaseBrowser } from "@/services/supabase-client";
-import type { LoginSchema, SignupSchema } from "@/features/auth/schemas/auth.schemas";
+import type {
+  ForgotPasswordSchema,
+  LoginSchema,
+  SignupSchema,
+} from "@/features/auth/schemas/auth.schemas";
 import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 export const authService = {
   async signInWithEmail(input: LoginSchema) {
@@ -44,9 +48,32 @@ export const authService = {
     if (error) throw error;
   },
 
+  async sendPasswordResetEmail(input: ForgotPasswordSchema) {
+    const supabase = getSupabaseBrowser();
+    const base =
+      (typeof window !== "undefined" ? window.location.origin : null) ??
+      process.env.NEXT_PUBLIC_APP_ORIGIN ??
+      "http://localhost:3000";
+    const redirectTo =
+      `${base.replace(/\/$/, "")}/auth/callback?next=` +
+      encodeURIComponent("/auth/reset-password");
+
+    const { error } = await supabase.auth.resetPasswordForEmail(input.email, {
+      redirectTo,
+    });
+    if (error) throw error;
+  },
+
+  async completePasswordReset(password: string) {
+    const supabase = getSupabaseBrowser();
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) throw error;
+  },
+
   onAuthChange(
     listener: (event: AuthChangeEvent, session: Session | null) => void | Promise<void>
-  ) {    const supabase = getSupabaseBrowser();
+  ) {
+    const supabase = getSupabaseBrowser();
     const { data } = supabase.auth.onAuthStateChange(listener);
     return data.subscription;
   },

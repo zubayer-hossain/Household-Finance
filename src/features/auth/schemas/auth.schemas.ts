@@ -30,3 +30,24 @@ export const inviteSetPasswordSchema = z
   });
 
 export type InviteSetPasswordSchema = z.infer<typeof inviteSetPasswordSchema>;
+
+export const forgotPasswordSchema = z
+  .object({
+    email: z.string().trim().email("Enter a valid email"),
+  })
+  .strict();
+
+export type ForgotPasswordSchema = z.infer<typeof forgotPasswordSchema>;
+
+export const resetPasswordSchema = z
+  .object({
+    password: z.string().min(8, "At least 8 characters"),
+    confirmPassword: z.string().min(8, "At least 8 characters"),
+  })
+  .strict()
+  .refine((d) => d.password === d.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+export type ResetPasswordSchema = z.infer<typeof resetPasswordSchema>;

@@ -10,23 +10,29 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { FormCallout } from "@/components/ui/form-callout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { loginSchema, type LoginSchema } from "@/features/auth/schemas/auth.schemas";
+import {
+  forgotPasswordSchema,
+  type ForgotPasswordSchema,
+} from "@/features/auth/schemas/auth.schemas";
 import { authService } from "@/features/auth/services/auth.service";
 
-export function LoginForm() {
+export function ForgotPasswordForm() {
   const [formError, setFormError] = useState<string | null>(null);
-  const form = useForm<LoginSchema>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
+  const [sentTo, setSentTo] = useState<string | null>(null);
+
+  const form = useForm<ForgotPasswordSchema>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: { email: "" },
   });
 
-  async function onSubmit(values: LoginSchema) {
+  async function onSubmit(values: ForgotPasswordSchema) {
     setFormError(null);
+    setSentTo(null);
     try {
-      await authService.signInWithEmail(values);
-      window.location.assign("/app");
+      await authService.sendPasswordResetEmail(values);
+      setSentTo(values.email);
     } catch (e: unknown) {
-      setFormError(e instanceof Error ? e.message : "Sign in failed");
+      setFormError(e instanceof Error ? e.message : "Could not send reset email");
     }
   }
 
@@ -34,23 +40,24 @@ export function LoginForm() {
     <Card className="w-full max-w-md border-input/85 shadow-soft">
       <CardHeader>
         <h1 className="text-[1.625rem] font-semibold leading-tight tracking-[-0.03em] sm:text-[1.75rem]">
-          Sign in
+          Forgot password
         </h1>
         <p className="text-[0.9375rem] leading-relaxed text-muted-foreground">
-          Welcome back — pick up where you left off with your households. If you joined via email
-          invitation, use the link in that message first; you will set a password there before using
-          the app.
+          Enter your email and we&apos;ll send a password reset link.
         </p>
       </CardHeader>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <CardContent className="flex flex-col gap-5">
-          {formError ? (
-            <FormCallout tone="destructive">{formError}</FormCallout>
+          {formError ? <FormCallout tone="destructive">{formError}</FormCallout> : null}
+          {sentTo ? (
+            <FormCallout tone="neutral">
+              If an account exists for <strong>{sentTo}</strong>, a reset link has been sent.
+            </FormCallout>
           ) : null}
           <div className="space-y-2.5">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="forgot-email">Email</Label>
             <Input
-              id="email"
+              id="forgot-email"
               type="email"
               autoComplete="email"
               {...form.register("email")}
@@ -58,25 +65,6 @@ export function LoginForm() {
             {form.formState.errors.email ? (
               <p className="text-xs font-medium leading-relaxed text-destructive">
                 {form.formState.errors.email.message}
-              </p>
-            ) : null}
-          </div>
-          <div className="space-y-2.5">
-            <div className="flex items-center justify-between gap-2">
-              <Label htmlFor="password">Password</Label>
-              <Link className="link-inline text-xs" href="/auth/forgot-password">
-                Forgot password?
-              </Link>
-            </div>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              {...form.register("password")}
-            />
-            {form.formState.errors.password ? (
-              <p className="text-xs font-medium leading-relaxed text-destructive">
-                {form.formState.errors.password.message}
               </p>
             ) : null}
           </div>
@@ -88,12 +76,12 @@ export function LoginForm() {
             size="lg"
             disabled={form.formState.isSubmitting}
           >
-            {form.formState.isSubmitting ? "Signing in…" : "Sign in"}
+            {form.formState.isSubmitting ? "Sending…" : "Send reset link"}
           </Button>
           <p className="text-center text-[0.9375rem] text-muted-foreground">
-            New here?{" "}
-            <Link className="link-inline" href="/signup">
-              Create an account
+            Remembered it?{" "}
+            <Link className="link-inline" href="/login">
+              Back to sign in
             </Link>
           </p>
         </CardFooter>

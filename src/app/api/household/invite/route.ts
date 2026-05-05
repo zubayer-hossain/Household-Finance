@@ -63,8 +63,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    const forwardedProtoRaw = req.headers.get("x-forwarded-proto");
+    const forwardedProto = forwardedProtoRaw?.split(",")[0]?.trim();
+    const forwardedHostRaw = req.headers.get("x-forwarded-host") ?? req.headers.get("host");
+    const forwardedHost = forwardedHostRaw?.split(",")[0]?.trim();
+
+    const configuredOrigin =
+      process.env.APP_ORIGIN ?? process.env.NEXT_PUBLIC_APP_ORIGIN;
+
     const inviteOrigin =
-      process.env.NEXT_PUBLIC_APP_ORIGIN ??
+      // Prefer reverse-proxy headers so we don't end up with Passenger's internal localhost.
+      (forwardedHost
+        ? `${forwardedProto ?? "https"}://${forwardedHost}`
+        : null) ??
+      configuredOrigin ??
       req.headers.get("origin") ??
       new URL(req.url).origin;
 
