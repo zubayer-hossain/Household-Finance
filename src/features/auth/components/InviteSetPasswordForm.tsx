@@ -14,7 +14,7 @@ import {
   type InviteSetPasswordSchema,
 } from "@/features/auth/schemas/auth.schemas";
 import { authService } from "@/features/auth/services/auth.service";
-import { householdService } from "@/features/household/services/household.service";
+import { finalizePendingHouseholdInvites } from "@/lib/finalize-pending-household-invites";
 
 export function InviteSetPasswordForm() {
   const [formError, setFormError] = useState<string | null>(null);
@@ -27,7 +27,7 @@ export function InviteSetPasswordForm() {
     setFormError(null);
     try {
       await authService.completeInvitePassword(values.password);
-      await householdService.finalizePendingHouseholdInvites();
+      await finalizePendingHouseholdInvites();
       window.location.assign("/app");
     } catch (e: unknown) {
       setFormError(e instanceof Error ? e.message : "Could not save password");

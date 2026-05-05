@@ -2,6 +2,7 @@ import { getSupabaseBrowser } from "@/services/supabase-client";
 import type { HouseholdMembership, HouseholdRecord } from "@/features/household/types";
 import type { CreateHouseholdSchema } from "@/features/household/schemas/household.schemas";
 import { buildHouseholdSlug } from "@/features/household/lib/slug";
+import { finalizePendingHouseholdInvites } from "@/lib/finalize-pending-household-invites";
 
 function asDbMessage(err: unknown): string {
   if (err instanceof Error) return err.message;
@@ -19,16 +20,7 @@ export type HouseholdDeletionAssessment = {
 };
 
 export const householdService = {
-  async finalizePendingHouseholdInvites(): Promise<void> {
-    const supabase = getSupabaseBrowser();
-    const finalize = await supabase.rpc("finalize_pending_household_invites");
-    if (finalize.error && process.env.NODE_ENV === "development") {
-      console.warn(
-        "[finalizePendingHouseholdInvites] finalize_pending_household_invites:",
-        finalize.error.message
-      );
-    }
-  },
+  finalizePendingHouseholdInvites,
 
   async listMyMemberships(): Promise<HouseholdMembership[]> {
     const supabase = getSupabaseBrowser();
